@@ -2,7 +2,7 @@
   "name": "FixFlow - ระบบแจ้งซ่อม",
   "short_name": "FixFlow",
   "description": "เว็บแอปพลิเคชันสำหรับค้นหาและแจ้งอันตรายภายในองค์กร",
-  "start_url": "./app.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f1f5f9",
   "theme_color": "#3b82f6",

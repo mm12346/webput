@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 // ควรเก็บเป็น Environment Variables ใน Production
 // สร้าง Key ได้โดยการติดตั้ง web-push globaly (npm install -g web-push)
 // แล้วรันคำสั่ง `web-push generate-vapid-keys` ใน Terminal
-const publicVapidKey = 'BNxogBnP7UQvmyagjJ9R1Sxa7I6_Kp-51WWewWsUEkH1Jx_km8ayUSPuTQ5Fbe2fjoF2zBchQ1KfMLJd9aCEWhI'; // Use the same key as in app.html
+const publicVapidKey = 'BNxogBnP7UQvmyagjJ9R1Sxa7I6_Kp-51WWewWsUEkH1Jx_km8ayUSPuTQ5Fbe2fjoF2zBchQ1KfMLJd9aCEWhI'; // Use the same key as in index.html
 const privateVapidKey = 'bP4fpbU6IR4OuOr81X4-fkLMC8iOHV7oSceLvXxz0uM'; // This is your private key
 
 webpush.setVapidDetails(
@@ -60,7 +60,7 @@ app.post('/send-notification', (req, res) => {
   const notificationPayload = JSON.stringify({
     title: title,
     body: body,
-    url: url || '/index.html' // URL ที่จะเปิดเมื่อคลิก (ควรชี้ไปที่ app.html)
+    url: url || '/index.html' // URL ที่จะเปิดเมื่อคลิก (ควรชี้ไปที่ index.html)
   });
 
   const promises = subscriptions.map(subscription => 

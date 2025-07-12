@@ -41,16 +41,14 @@
         body {
             font-family: 'Kanit', sans-serif;
             -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
-            /* Hide scrollbar for IE, Edge and Firefox */
             -ms-overflow-style: none; /* IE and Edge */
             scrollbar-width: none; /* Firefox */
         }
-        /* Hide scrollbar for Chrome, Safari and Opera */
         body::-webkit-scrollbar {
             display: none;
         }
 
-        /* Custom scrollbar for a modern look (these will now be overridden by the above rules) */
+        /* Custom scrollbar for a modern look */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #a8a8a8; border-radius: 3px; }
@@ -137,13 +135,13 @@
                             <h1 class="text-2xl font-bold text-gray-800 dark:text-white hidden sm:block">ค้นหาอันตราย</h1>
                         </div>
                         <div class="flex items-center gap-3 sm:gap-4">
+                             <!-- NEW: Notification Button -->
+                            <button id="notification-btn" class="hidden p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" title="เปิดการแจ้งเตือน">
+                                <i data-lucide="bell" class="w-5 h-5"></i>
+                            </button>
                             <button id="install-pwa-btn" class="hidden bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 font-bold py-2 px-3 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900 transition-colors flex items-center gap-2">
                                 <i data-lucide="download-cloud" class="w-5 h-5"></i>
                                 <span class="hidden md:inline">ติดตั้งแอป</span>
-                            </button>
-                            <!-- Notification Button (for Admin only) -->
-                            <button id="notification-btn" class="hidden p-2 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900 transition-colors" title="เปิดใช้งานการแจ้งเตือน">
-                                <i data-lucide="bell" class="w-5 h-5"></i>
                             </button>
                             <button id="theme-toggle-main" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                                 <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
@@ -227,7 +225,6 @@
                             </div>
                             <p id="summary-completed" class="text-4xl font-bold text-gray-800 dark:text-white mt-2">0</p>
                         </div>
-                        <!-- Re-added "รออะไหล่" summary card -->
                         <div data-status="รออะไหล่" class="summary-card bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border-l-4 border-red-500 cursor-pointer hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors group">
                              <div class="flex justify-between items-center">
                                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">รออะไหล่</p>
@@ -262,7 +259,7 @@
 
     <!-- Modals Container -->
     <div id="modal-container">
-        <!-- New Request Modal (formerly new-request-page) -->
+        <!-- New Request Modal -->
         <div id="new-request-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
             <div class="bg-white dark:bg-gray-800 w-full max-w-xl rounded-2xl shadow-xl transform transition-all max-h-[90vh] flex flex-col">
                 <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
@@ -283,7 +280,6 @@
                             <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">หมวดหมู่ *</label>
                             <select id="category" name="category" class="mt-1 w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg" required>
                                 <option value="">เลือกหมวดหมู่</option>
-                                <!-- Categories will be loaded here by JavaScript -->
                             </select>
                         </div>
                          <div>
@@ -299,12 +295,10 @@
                              <input type="file" id="image" name="image" accept="image/*" class="mt-1 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/50 dark:file:text-blue-300 dark:hover:file:bg-blue-900">
                              <img id="image-preview" src="" class="mt-3 rounded-lg max-h-48 hidden w-full object-contain">
                         </div>
-                        <!-- Dropdown for selecting technician -->
                         <div>
                             <label for="assigned-to" class="block text-sm font-medium text-gray-700 dark:text-gray-300">มอบหมายให้ (ช่าง/ผู้รับผิดชอบ)</label>
                             <select id="assigned-to" name="assigned-to" class="mt-1 w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
                                 <option value="">เลือกช่าง/ผู้รับผิดชอบ</option>
-                                <!-- Technicians will be loaded here by JavaScript -->
                             </select>
                         </div>
                     </div>
@@ -330,7 +324,6 @@
                     </div>
                 </div>
                 <div class="p-6 overflow-y-auto">
-                    <!-- Updated: Comment display section for all statuses except 'รอดำเนินการ' -->
                     <div id="admin-comment-display" class="hidden mb-4 p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg">
                         <h4 class="font-bold text-gray-800 dark:text-gray-300 flex items-center gap-2"><i data-lucide="message-square" class="w-4 h-4"></i>หมายเหตุ:</h4>
                         <p class="text-gray-700 dark:text-gray-400 mt-1 pl-6" id="admin-comment-text"></p>
@@ -377,14 +370,13 @@
                                      <option value="รอดำเนินการ">รอดำเนินการ</option>
                                      <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
                                      <option value="ซ่อมเสร็จแล้ว">ซ่อมเสร็จแล้ว</option>
-                                     <option value="รออะไหล่">รออะไหล่</option> <!-- Re-added "รออะไหล่" option -->
+                                     <option value="รออะไหล่">รออะไหล่</option>
                                 </select>
                              </div>
                              <div class="self-end">
                                  <button id="update-status-btn" class="w-full bg-gray-700 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500 transition-colors disabled:bg-gray-400">อัปเดตสถานะ</button>
                              </div>
                         </div>
-                        <!-- Updated: Comment input section for all statuses except 'รอดำเนินการ' -->
                         <div id="status-comment-section" class="hidden">
                             <label for="status-comment-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300">หมายเหตุ</label>
                             <textarea id="status-comment-input" rows="3" class="mt-1 w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"></textarea>
@@ -460,7 +452,6 @@
         <div id="message-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <div class="bg-white dark:bg-gray-800 w-full max-w-sm rounded-2xl shadow-xl p-6 text-center">
                 <div id="message-icon" class="mx-auto h-12 w-12">
-                    <!-- Icon will be injected here -->
                 </div>
                 <h3 id="message-title" class="text-xl font-bold mt-4 text-gray-800 dark:text-white"></h3>
                 <p id="message-text" class="text-gray-500 dark:text-gray-400 mt-2"></p>
@@ -476,14 +467,13 @@
         // =================================================================================
         // CONFIGURATION
         // =================================================================================
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyU2WVUj8eZwlx2UBVj7bAF0SSU6hOs1Tloq4hX2L8ctiKDk_n17vDecxzkLQ3dFoF7/exec"; // << ใส่ URL ของ Apps Script ของคุณ
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyU2WVUj8eZwlx2UBVj7bAF0SSU6hOs1Tloq4hX2L8ctiKDk_n17vDecxzkLQ3dFoF7/exec";
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dsmiqo5si/image/upload";
         const CLOUDINARY_UPLOAD_PRESET = "FixFlow";
-        // VAPID Public Key for Web Push Notifications (Generated from web-push generate-vapid-keys)
-        // This key must match the public key used on your Node.js backend server.
-        const VAPID_PUBLIC_KEY = 'BNxogBnP7UQvmyagjJ9R1Sxa7I6_Kp-51WWewWsUEkH1Jx_km8ayUSPuTQ5Fbe2fjoF2zBchQ1KfMLJd9aCEWhI'; // Replace with your actual VAPID Public Key
-        // URL of your Node.js backend server for push notifications
-        const BACKEND_SERVER_URL = 'https://webput.onrender.com'; // Replace with your actual backend server URL
+        // NEW: Notification Configuration
+        const BACKEND_SERVER_URL = "https://web.onrender.com"; // URL ของ Node.js server ของคุณ
+        const VAPID_PUBLIC_KEY = "BNxogBnP7UQvmyagjJ9R1Sxa7I6_Kp-51WWewWsUEkH1Jx_km8ayUSPuTQ5Fbe2fjoF2zBchQ1KfMLJd9aCEWhI"; // VAPID Key ที่ได้จาก server.js
+
 
         // =================================================================================
         // PWA & NOTIFICATION LOGIC
@@ -512,12 +502,10 @@
             }
         });
 
-        // Function to convert VAPID public key to Uint8Array
+        // NEW: Function to convert VAPID key
         function urlBase64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding)
-                .replace(/\-/g, '+')
-                .replace(/_/g, '/');
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
             const rawData = window.atob(base64);
             const outputArray = new Uint8Array(rawData.length);
             for (let i = 0; i < rawData.length; ++i) {
@@ -526,60 +514,32 @@
             return outputArray;
         }
 
-        // Function to subscribe the user to push notifications
+        // NEW: Function to subscribe user to push notifications
         async function subscribeUserToPush() {
-            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-                showMessageModal('ข้อผิดพลาด', 'เบราว์เซอร์ของคุณไม่รองรับ Push Notifications', 'error');
-                return;
-            }
-
-            // Check if notification permission is already granted
-            if (Notification.permission === 'granted') {
-                showMessageModal('แจ้งเตือน', 'คุณได้อนุญาตการแจ้งเตือนแล้ว', 'info');
-                return;
-            } else if (Notification.permission === 'denied') {
-                showMessageModal('ข้อผิดพลาด', 'คุณได้บล็อกการแจ้งเตือน โปรดเปลี่ยนการตั้งค่าเบราว์เซอร์ของคุณ', 'error');
-                return;
-            }
-
-            showLoading(true);
             try {
                 const registration = await navigator.serviceWorker.ready;
-                const subscribeOptions = {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    showMessageModal('ไม่อนุญาต', 'คุณต้องอนุญาตการแจ้งเตือนเพื่อรับอัปเดต', 'error');
+                    return;
+                }
+                const subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true,
                     applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-                };
-                const pushSubscription = await registration.pushManager.subscribe(subscribeOptions);
-                console.log('Received PushSubscription:', pushSubscription);
-
-                // Send subscription to your backend server
-                const response = await fetch(`${BACKEND_SERVER_URL}/save-subscription`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(pushSubscription)
                 });
-
-                if (response.ok) {
-                    showMessageModal('สำเร็จ', 'เปิดใช้งานการแจ้งเตือนสำเร็จแล้ว', 'success');
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'ไม่สามารถบันทึกการสมัครสมาชิกได้');
-                }
+                await fetch(`${BACKEND_SERVER_URL}/save-subscription`, {
+                    method: 'POST', body: JSON.stringify(subscription), headers: { 'Content-Type': 'application/json' }
+                });
+                showMessageModal('สำเร็จ', 'ลงทะเบียนรับการแจ้งเตือนสำเร็จ!', 'success');
             } catch (error) {
-                console.error('Error subscribing to push:', error);
-                showMessageModal('ข้อผิดพลาด', `ไม่สามารถเปิดใช้งานการแจ้งเตือน: ${error.message}`, 'error');
-            } finally {
-                showLoading(false);
+                console.error('Failed to subscribe the user: ', error);
+                showMessageModal('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการลงทะเบียนรับการแจ้งเตือน', 'error');
             }
         }
         
         // =================================================================================
         // THEME (DARK/LIGHT MODE) LOGIC
         // =================================================================================
-        const themeToggleButtons = document.querySelectorAll('.dark-mode-toggle');
-
         function applyTheme(theme) {
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
@@ -597,7 +557,6 @@
         document.getElementById('theme-toggle-login').addEventListener('click', handleThemeToggle);
         document.getElementById('theme-toggle-main').addEventListener('click', handleThemeToggle);
 
-        // Apply saved theme on initial load
         const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         applyTheme(savedTheme);
 
@@ -607,8 +566,8 @@
         // =================================================================================
         let currentUser = null;
         let allRequests = [];
-        let technicians = []; // Array to store technicians
-        let categories = []; // Array to store categories
+        let technicians = [];
+        let categories = [];
         let currentRequestId = null;
         let requestIdToDelete = null;
 
@@ -618,18 +577,17 @@
         const mainAppPage = document.getElementById('main-app-page');
         const requesterView = document.getElementById('requester-view');
         const adminView = document.getElementById('admin-view');
-        const adminViewTitle = document.getElementById('admin-view-title'); // New element for admin view title
+        const adminViewTitle = document.getElementById('admin-view-title'); 
         const loginForm = document.getElementById('login-form');
         const employeeIdInput = document.getElementById('employee-id');
         const loginError = document.getElementById('login-error');
         const userNameDisplay = document.getElementById('user-name-display');
         const userIdDisplay = document.getElementById('user-id-display');
         const logoutButton = document.getElementById('logout-button');
+        const notificationButton = document.getElementById('notification-btn'); // NEW
         const requesterList = document.getElementById('requester-list');
         const adminList = document.getElementById('admin-list');
-        const newRequestModal = document.getElementById('new-request-modal'); // Changed from newRequestPage
-        // Removed backToMainBtn as it's not needed for a modal
-
+        const newRequestModal = document.getElementById('new-request-modal');
         const openRequestModalBtn = document.getElementById('open-request-modal-btn');
         const newRequestForm = document.getElementById('new-request-form');
         const imageInput = document.getElementById('image');
@@ -641,11 +599,8 @@
         const uploadAfterImageSection = document.getElementById('upload-after-image-section');
         const updateStatusSelect = document.getElementById('update-status');
         const afterImageUploadInput = document.getElementById('after-image-upload');
-        // Renamed cancellationReasonDisplay to adminCommentDisplay for broader use
         const adminCommentDisplay = document.getElementById('admin-comment-display'); 
-        // Renamed cancellationCommentSection to statusCommentSection
         const statusCommentSection = document.getElementById('status-comment-section'); 
-        // Renamed cancellation-comment-input to status-comment-input
         const statusCommentInput = document.getElementById('status-comment-input'); 
         const triggerInitialUploadBtn = document.getElementById('trigger-initial-upload-btn');
         const initialUploadContainer = document.getElementById('initial-upload-container');
@@ -666,18 +621,14 @@
         const messageText = document.getElementById('message-text');
         const messageIcon = document.getElementById('message-icon'); 
         const messageOkBtn = document.getElementById('message-ok-btn');
-        const assignedToSelect = document.getElementById('assigned-to'); // Technician select
-        const categorySelect = document.getElementById('category'); // Category select for new request form
-        const requesterSearchCategorySelect = document.getElementById('requester-search-category'); // Category select for requester filter
-        const adminSearchCategorySelect = document.getElementById('admin-search-category'); // Category select for admin filter
-        const notificationButton = document.getElementById('notification-btn'); // Notification button
+        const assignedToSelect = document.getElementById('assigned-to');
+        const categorySelect = document.getElementById('category');
+        const requesterSearchCategorySelect = document.getElementById('requester-search-category');
+        const adminSearchCategorySelect = document.getElementById('admin-search-category');
 
-
-        // UI Helper Functions
         const showLoading = (show) => loadingOverlay.classList.toggle('hidden', !show);
         const showElement = (element, show) => element.classList.toggle('hidden', !show);
 
-        // Function to show/hide the new request modal
         function showNewRequestModal(show) {
             showElement(newRequestModal, show);
             if (show) {
@@ -686,34 +637,14 @@
                 populateTechnicianDropdown(technicians); 
                 populateCategoryDropdowns(categories); 
             }
-            lucide.createIcons(); // Re-render icons on modal
+            lucide.createIcons();
         }
 
         const statusStyles = {
-            "รอดำเนินการ": {
-                text: "text-yellow-800 dark:text-yellow-300",
-                bg: "bg-yellow-100 dark:bg-yellow-400/20",
-                border: "border-yellow-400 dark:border-yellow-500",
-                icon: "clock"
-            },
-            "กำลังดำเนินการ": {
-                text: "text-blue-800 dark:text-blue-300",
-                bg: "bg-blue-100 dark:bg-blue-500/20",
-                border: "border-blue-500 dark:border-blue-400",
-                icon: "loader-2"
-            },
-            "ซ่อมเสร็จแล้ว": {
-                text: "text-green-800 dark:text-green-300",
-                bg: "bg-green-100 dark:bg-green-500/20",
-                border: "border-green-500 dark:border-green-400",
-                icon: "check-circle-2"
-            },
-            "รออะไหล่": { // Re-added "รออะไหล่" status
-                text: "text-red-800 dark:text-red-300",
-                bg: "bg-red-100 dark:bg-red-500/20",
-                border: "border-red-500 dark:border-red-400",
-                icon: "archive"
-            },
+            "รอดำเนินการ": { text: "text-yellow-800 dark:text-yellow-300", bg: "bg-yellow-100 dark:bg-yellow-400/20", border: "border-yellow-400 dark:border-yellow-500", icon: "clock" },
+            "กำลังดำเนินการ": { text: "text-blue-800 dark:text-blue-300", bg: "bg-blue-100 dark:bg-blue-500/20", border: "border-blue-500 dark:border-blue-400", icon: "loader-2" },
+            "ซ่อมเสร็จแล้ว": { text: "text-green-800 dark:text-green-300", bg: "bg-green-100 dark:bg-green-500/20", border: "border-green-500 dark:border-green-400", icon: "check-circle-2" },
+            "รออะไหล่": { text: "text-red-800 dark:text-red-300", bg: "bg-red-100 dark:bg-red-500/20", border: "border-red-500 dark:border-red-400", icon: "archive" },
         };
 
         function showMessageModal(title, message, type = 'info') {
@@ -721,14 +652,9 @@
             messageText.textContent = message;
             let iconSvg = '';
             switch (type) {
-                case 'success':
-                    iconSvg = `<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/50"><i data-lucide="check" class="h-6 w-6 text-green-600 dark:text-green-400"></i></div>`;
-                    break;
-                case 'error':
-                    iconSvg = `<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/50"><i data-lucide="alert-triangle" class="h-6 w-6 text-red-600 dark:text-red-400"></i></div>`;
-                    break;
-                default:
-                    iconSvg = `<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/50"><i data-lucide="info" class="h-6 w-6 text-blue-600 dark:text-blue-400"></i></div>`;
+                case 'success': iconSvg = `<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/50"><i data-lucide="check" class="h-6 w-6 text-green-600 dark:text-green-400"></i></div>`; break;
+                case 'error': iconSvg = `<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/50"><i data-lucide="alert-triangle" class="h-6 w-6 text-red-600 dark:text-red-400"></i></div>`; break;
+                default: iconSvg = `<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/50"><i data-lucide="info" class="h-6 w-6 text-blue-600 dark:text-blue-400"></i></div>`;
             }
             messageIcon.innerHTML = iconSvg;
             lucide.createIcons();
@@ -772,13 +698,10 @@
             document.getElementById('admin-search-problem').value = '';
             document.getElementById('admin-search-date').value = '';
             document.getElementById('admin-search-category').value = '';
-            // Filter based on the current user's role
             let filtered;
             if (currentUser.isTechnician && !currentUser.isAdmin) {
-                // Technicians see only their assigned requests
                 filtered = allRequests.filter(req => req.status === status && String(req.assignedToId) === String(currentUser.id));
             } else {
-                // Admins see all requests
                 filtered = allRequests.filter(req => req.status === status);
             }
             renderRequests(filtered, adminList, currentUser);
@@ -793,22 +716,21 @@
         });
 
         function updateSummaryCards(requests) {
-            const counts = { pending: 0, inprogress: 0, completed: 0, cancelled: 0 }; // Re-added 'cancelled'
+            const counts = { pending: 0, inprogress: 0, completed: 0, cancelled: 0 };
             requests.forEach(req => {
                 if (req.status === 'รอดำเนินการ') counts.pending++;
                 else if (req.status === 'กำลังดำเนินการ') counts.inprogress++;
                 else if (req.status === 'ซ่อมเสร็จแล้ว') counts.completed++;
-                else if (req.status === 'รออะไหล่') counts.cancelled++; // Re-added 'รออะไหล่' count
+                else if (req.status === 'รออะไหล่') counts.cancelled++;
             });
             document.getElementById('summary-pending').textContent = counts.pending;
             document.getElementById('summary-inprogress').textContent = counts.inprogress;
             document.getElementById('summary-completed').textContent = counts.completed;
-            document.getElementById('summary-cancelled').textContent = counts.cancelled; // Re-added 'summary-cancelled' display
+            document.getElementById('summary-cancelled').textContent = counts.cancelled;
         }
 
         function createRequestCard(request, userSession) {
             const style = statusStyles[request.status] || statusStyles['รอดำเนินการ'];
-            // Only allow delete if user is admin OR the requester of the request
             const canDelete = userSession.isAdmin || (userSession.id && String(request.requesterId) === String(userSession.id));
             const assignedToText = request.assignedToName ? `ผู้รับผิดชอบ: ${request.assignedToName}` : 'ผู้รับผิดชอบ: ยังไม่ระบุ';
 
@@ -862,9 +784,8 @@
             document.getElementById('details-location').textContent = request.location;
             document.getElementById('details-requester').textContent = `${request.requesterName} (${request.requesterId})`;
             document.getElementById('details-details').textContent = request.details || '-';
-            document.getElementById('details-assigned-to').textContent = request.assignedToName || 'ยังไม่ระบุ'; // Display assigned technician
+            document.getElementById('details-assigned-to').textContent = request.assignedToName || 'ยังไม่ระบุ';
 
-            // Updated: Display adminComment for all statuses except 'รอดำเนินการ'
             adminCommentDisplay.classList.toggle('hidden', !(request.adminComment && request.status !== 'รอดำเนินการ'));
             if (request.adminComment && request.status !== 'รอดำเนินการ') {
                  document.getElementById('admin-comment-text').textContent = request.adminComment;
@@ -881,14 +802,11 @@
                  afterImage.onerror = () => { afterImage.src = 'https://placehold.co/600x400/fecaca/f87171?text=Error'; };
             }
             
-            // Admin or Technician controls
-            // Admin can see all controls, Technicians can only see if assigned to them
             const canManage = currentUser.isAdmin || (currentUser.isTechnician && String(request.assignedToId) === String(currentUser.id));
             adminControls.classList.toggle('hidden', !canManage);
 
             if (canManage) {
                 updateStatusSelect.value = request.status;
-                // Updated: Show comment input for all statuses except 'รอดำเนินการ'
                 statusCommentSection.classList.toggle('hidden', request.status === 'รอดำเนินการ');
                 statusCommentInput.value = request.adminComment || '';
                 const isCompleted = request.status === 'ซ่อมเสร็จแล้ว';
@@ -907,30 +825,24 @@
             try {
                 let data;
                 if (currentUser.isAdmin) {
-                    // Admins get all requests
                     data = await callGasApi({ action: 'getRequests', isAdmin: true });
                     adminViewTitle.textContent = 'แดชบอร์ดจัดการ (สำหรับผู้ดูแลระบบ)';
                 } else if (currentUser.isTechnician) {
-                    // Technicians get only their assigned requests
                     data = await callGasApi({ action: 'getRequests', isTechnician: true, employeeId: currentUser.id });
                     adminViewTitle.textContent = 'รายการที่ได้รับมอบหมาย (สำหรับช่าง)';
                 } else {
-                    // Regular users get requests they created
                     data = await callGasApi({ action: 'getRequests', requesterId: currentUser.id });
-                    adminViewTitle.textContent = 'แดชบอร์ดจัดการ (สำหรับผู้ดูแลระบบ)'; // This title won't be visible for regular users
                 }
 
                 if (data) {
                     allRequests = data.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
                     
-                    // Update summary cards and render lists based on current user's role
                     if (currentUser.isAdmin || currentUser.isTechnician) {
-                        updateSummaryCards(allRequests); // Summary cards always reflect the data loaded for the current view
+                        updateSummaryCards(allRequests);
                         renderRequests(allRequests, adminList, currentUser);
                     } else { 
-                        // Regular user view
-                        updateSummaryCards(allRequests); // Still update for regular user's view (their own requests)
-                        renderRequests(allRequests, requesterList, currentUser);
+                        const userRequests = allRequests.filter(r => String(r.requesterId) === String(currentUser.id));
+                        renderRequests(userRequests, requesterList, currentUser);
                     }
                 }
             } catch(error) {
@@ -940,7 +852,6 @@
             }
         }
 
-        // Function to load technicians
         async function loadTechnicians() {
             try {
                 const data = await callGasApi({ action: 'getTechnicians' });
@@ -954,7 +865,6 @@
             }
         }
 
-        // Function to populate technician dropdown
         function populateTechnicianDropdown(techs) {
             assignedToSelect.innerHTML = '<option value="">เลือกช่าง/ผู้รับผิดชอบ</option>';
             techs.forEach(tech => {
@@ -965,7 +875,6 @@
             });
         }
 
-        // Function to load categories
         async function loadCategories() {
             try {
                 const data = await callGasApi({ action: 'getCategories' });
@@ -979,36 +888,20 @@
             }
         }
 
-        // Function to populate category dropdowns
         function populateCategoryDropdowns(cats) {
-            const defaultOption = '<option value="">ทุกหมวดหมู่</option>'; // For filter dropdowns
+            const defaultOption = '<option value="">ทุกหมวดหมู่</option>';
             
-            // For new request form
             categorySelect.innerHTML = '<option value="">เลือกหมวดหมู่</option>';
             cats.forEach(cat => {
                 const option = document.createElement('option');
                 option.value = cat;
                 option.textContent = cat;
-                categorySelect.appendChild(option);
+                categorySelect.appendChild(option.cloneNode(true));
+                requesterSearchCategorySelect.appendChild(option.cloneNode(true));
+                adminSearchCategorySelect.appendChild(option.cloneNode(true));
             });
-
-            // For requester filter
-            requesterSearchCategorySelect.innerHTML = defaultOption;
-            cats.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat;
-                option.textContent = cat;
-                requesterSearchCategorySelect.appendChild(option);
-            });
-
-            // For admin filter
-            adminSearchCategorySelect.innerHTML = defaultOption;
-            cats.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat;
-                option.textContent = cat;
-                adminSearchCategorySelect.appendChild(option);
-            });
+            requesterSearchCategorySelect.insertAdjacentHTML('afterbegin', defaultOption);
+            adminSearchCategorySelect.insertAdjacentHTML('afterbegin', defaultOption);
         }
         
         async function initializeUserSession(user) {
@@ -1018,24 +911,20 @@
             showElement(loginPage, false);
             showElement(mainAppPage, true);
             
-            // Show adminView if user is admin or technician, otherwise show requesterView
             showElement(adminView, currentUser.isAdmin || currentUser.isTechnician); 
             showElement(requesterView, !currentUser.isAdmin && !currentUser.isTechnician); 
             
-            // Show notification button only if the user is an admin
+            // NEW: Show notification button only for admins
             if (currentUser.isAdmin) {
                 notificationButton.classList.remove('hidden');
-            } else {
-                notificationButton.classList.add('hidden');
             }
-
+            
             await loadDashboardData();
             await loadTechnicians(); 
             await loadCategories(); 
             lucide.createIcons();
         }
 
-        // --- Event Listeners ---
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = employeeIdInput.value;
@@ -1046,10 +935,8 @@
             }
             showLoading(true);
             try {
-                // The backend now returns isTechnician
                 const userData = await callGasApi({ action: 'login', employeeId: id });
                 if (userData) {
-                    // Store isTechnician in currentUser
                     const user = { id: userData.id, name: userData.name, isAdmin: userData.isAdmin, isTechnician: userData.isTechnician }; 
                     localStorage.setItem('currentUser', JSON.stringify(user));
                     await initializeUserSession(user);
@@ -1068,14 +955,12 @@
             window.location.reload();
         });
 
-        // Event listener for the notification button
+        // NEW: Event listener for notification button
         notificationButton.addEventListener('click', subscribeUserToPush);
 
         openRequestModalBtn.addEventListener('click', () => {
-            showNewRequestModal(true); // Changed to showNewRequestModal
+            showNewRequestModal(true);
         });
-
-        // Removed backToMainBtn listener as it's not needed for a modal
 
         document.querySelectorAll('.close-modal-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -1098,11 +983,7 @@
 
                 if (imageFile && imageFile.size > 0) {
                     const uploadedUrl = await uploadToCloudinary(imageFile);
-                    if (!uploadedUrl) {
-                        // If Cloudinary upload fails, we throw an error.
-                        // The catch block will then handle it, and finally block will run.
-                        throw new Error('ไม่สามารถอัปโหลดรูปภาพได้');
-                    }
+                    if (!uploadedUrl) throw new Error('ไม่สามารถอัปโหลดรูปภาพได้');
                     imageUrl = uploadedUrl;
                 }
 
@@ -1119,18 +1000,16 @@
                 const result = await callGasApi({ action: 'createRequest', data: requestData });
                 if (result) {
                     showMessageModal('สำเร็จ', 'แจ้งอันตรายสำเร็จ', 'success');
-                    // Add a small delay here before closing the modal
                     setTimeout(async () => {
-                        showNewRequestModal(false); // Changed to showNewRequestModal
-                        await loadDashboardData(false); // Reload data after modal is hidden
-                    }, 300); // Small delay, e.g., 300ms
+                        showNewRequestModal(false);
+                        await loadDashboardData(false);
+                    }, 300);
                 } else {
                     throw new Error('ไม่สามารถสร้างใบแจ้งอันตรายได้ กรุณาลองใหม่อีกครั้ง');
                 }
             } catch (error) {
                 showMessageModal('ข้อผิดพลาด', `เกิดข้อผิดพลาด: ${error.message}`, 'error');
             } finally {
-                console.log('Resetting submit button state.'); // Debugging log
                 showLoading(false);
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'ส่งเรื่อง';
@@ -1165,13 +1044,9 @@
         updateStatusBtn.addEventListener('click', async () => {
             updateStatusBtn.disabled = true;
             const newStatus = updateStatusSelect.value;
-            // Get comment value from the new input field
             const comment = statusCommentInput.value.trim(); 
             const payload = { action: 'updateStatus', id: currentRequestId, status: newStatus, updaterName: currentUser.name, comment: comment };
             
-            // No longer need to specifically check for 'รออะไหล่' here for comment requirement
-            // The backend now handles when to save the comment based on status !== 'รอดำเนินการ'
-
             showLoading(true);
             try {
                 const result = await callGasApi(payload);
@@ -1181,9 +1056,7 @@
         });
         
         updateStatusSelect.addEventListener('change', (e) => {
-            // Show comment input for all statuses except "รอดำเนินการ"
             statusCommentSection.classList.toggle('hidden', e.target.value === 'รอดำเนินการ');
-            // The logic for 'รออะไหล่' is now removed
             uploadAfterImageSection.classList.toggle('hidden', e.target.value !== 'ซ่อมเสร็จแล้ว');
         });
 
@@ -1209,10 +1082,10 @@
             finally { showLoading(false); }
         });
         
-        const handleFilter = (isRequester) => {
-            const problemInputId = isRequester ? 'requester-search-problem' : 'admin-search-problem';
-            const dateInputId = isRequester ? 'requester-search-date' : 'admin-search-date';
-            const categoryInputId = isRequester ? 'requester-search-category' : 'admin-search-category';
+        const handleFilter = (isRequesterView) => {
+            const problemInputId = isRequesterView ? 'requester-search-problem' : 'admin-search-problem';
+            const dateInputId = isRequesterView ? 'requester-search-date' : 'admin-search-date';
+            const categoryInputId = isRequesterView ? 'requester-search-category' : 'admin-search-category';
             const problem = document.getElementById(problemInputId).value.toLowerCase();
             const date = document.getElementById(dateInputId).value;
             const category = document.getElementById(categoryInputId).value;
@@ -1221,10 +1094,8 @@
             if (currentUser.isAdmin) {
                 sourceData = allRequests;
             } else if (currentUser.isTechnician) {
-                // Technicians filter their already assigned requests
                 sourceData = allRequests.filter(req => String(req.assignedToId) === String(currentUser.id));
             } else {
-                // Regular users filter their own created requests
                 sourceData = allRequests.filter(r => String(r.requesterId) === String(currentUser.id));
             }
 
@@ -1234,7 +1105,7 @@
                        (date ? reqDate === date : true) && 
                        (category ? req.category === category : true);
             });
-            renderRequests(filtered, isRequester ? requesterList : adminList, currentUser);
+            renderRequests(filtered, isRequesterView ? requesterList : adminList, currentUser);
         };
 
         adminFilterBtn.addEventListener('click', () => handleFilter(false));
@@ -1270,7 +1141,6 @@
             finally { showLoading(false); submitBtn.disabled = false; }
         });
 
-        // --- Pull to refresh logic ---
         const ptrElement = document.getElementById('pull-to-refresh');
         const ptrArrow = document.getElementById('ptr-arrow');
         let ptrStartY = 0;

@@ -2,7 +2,7 @@
 console.log('Service Worker Loaded');
 
 const CACHE_NAME = 'fixflow-cache-v10.0'; // เปลี่ยนเวอร์ชัน Cache เพื่อบังคับให้อัปเดต
-const REPO_NAME = '/webput'; // << ชื่อ Repository ของคุณบน GitHub
+const REPO_NAME = '/FixFlow'; // << ชื่อ Repository ของคุณบน GitHub
 
 // A list of files to cache for the application shell, with correct paths
 const urlsToCache = [
@@ -41,7 +41,6 @@ self.addEventListener('activate', event => {
     .then(() => self.clients.claim()) // Take control of all pages
   );
 });
-
 
 // Fetch event: serve from cache first, then network
 self.addEventListener('fetch', event => {
@@ -84,22 +83,9 @@ self.addEventListener('push', event => {
 
 // Notification click event: handle user clicking on the notification
 self.addEventListener('notificationclick', event => {
-  console.log('[Service Worker] Notification click Received.');
-  event.notification.close(); // Close the notification
+  event.notification.close();
 
-  // This looks for all the Window clients (browsing instances) and focuses one, or opens a new one
   event.waitUntil(
-    clients.matchAll({ type: 'window' }).then(clientList => {
-      // If a client with the target URL is already open, focus it
-      for (const client of clientList) {
-        if (client.url.includes(event.notification.data.url) && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      // Otherwise, open a new window/tab
-      if (clients.openWindow) {
-        return clients.openWindow(event.notification.data.url);
-      }
-    })
+    clients.openWindow(event.notification.data.url || `${REPO_NAME}/`)
   );
 });

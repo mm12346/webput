@@ -1,10 +1,13 @@
 // Service Worker for FixFlow App (Vanilla Version - Patched for GitHub Pages)
-console.log('Service Worker Loaded');
+console.log('Service Worker Loaded - v16.0');
 
-const CACHE_NAME = 'fixflow-cache-v15.0'; // เปลี่ยนเวอร์ชัน Cache เพื่อบังคับให้อัปเดต
-const REPO_NAME = '/webput'; // << ชื่อ Repository ของคุณบน GitHub
+// --- CACHE VERSION ---
+// Incrementing the version number is crucial for triggering the 'activate' event
+// and clearing out old caches.
+const CACHE_NAME = 'fixflow-cache-v16.0'; 
+const REPO_NAME = '/webput'; // << Your repository name on GitHub
 
-// A list of files to cache for the application shell, with correct paths
+// A list of files to cache for the application shell.
 const urlsToCache = [
   `${REPO_NAME}/`,
   `${REPO_NAME}/index.html`,
@@ -13,58 +16,75 @@ const urlsToCache = [
   `${REPO_NAME}/icon-512.png`
 ];
 
-// Install event: cache application shell
+// --- INSTALL EVENT ---
+// This event is triggered when the service worker is first installed.
 self.addEventListener('install', event => {
+  console.log('[SW] Install event');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Caching app shell with correct paths');
+        console.log('[SW] Caching app shell:', urlsToCache);
         return cache.addAll(urlsToCache);
       })
-      .then(() => self.skipWaiting()) // Force the new service worker to activate
+      .then(() => self.skipWaiting()) // Force the new service worker to activate immediately
   );
 });
 
-// Activate event: clean up old caches
+// --- ACTIVATE EVENT ---
+// This event is triggered when the new service worker becomes active.
+// It's the perfect place to clean up old caches.
 self.addEventListener('activate', event => {
+  console.log('[SW] Activate event');
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
-    .then(() => self.clients.claim()) // Take control of all pages
+    .then(() => self.clients.claim()) // Take control of all open pages
   );
 });
 
-// Fetch event: serve from cache first, then network
+// --- FETCH EVENT ---
+// Implements a "Network falling back to cache" strategy.
+// This ensures users get the latest content when online, but the app still works offline.
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
-  
+  // We only want to handle GET requests.
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then(response => {
-      // If we have a match in the cache, return it
-      if (response) {
-        return response;
-      }
-      // Otherwise, fetch from the network
-      return fetch(event.request).catch(() => {
-        // If network fails, you can return a fallback offline page
-        // For now, it will just fail, which is okay for this stage.
-      });
-    })
+    // 1. Try to fetch from the network first.
+    fetch(event.request)
+      .then(networkResponse => {
+        // If the fetch is successful, we should cache it for offline use.
+        const responseToCache = networkResponse.clone();
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, responseToCache);
+        });
+        // And return the response from the network.
+        return networkResponse;
+      })
+      .catch(() => {
+        // 2. If the network request fails (e.g., user is offline),
+        // try to get the response from the cache.
+        return caches.match(event.request);
+      })
   );
 });
 
 
-// Push event: listen for incoming push messages
+// --- PUSH EVENT ---
+// Listen for incoming push messages from the server.
 self.addEventListener('push', event => {
-  console.log('[Service Worker] Push Received.');
+  console.log('[SW] Push Received.');
   
   const data = event.data ? event.data.json() : {};
   
@@ -74,17 +94,19 @@ self.addEventListener('push', event => {
     icon: `${REPO_NAME}/icon-192.png`, 
     badge: `${REPO_NAME}/icon-192.png`,
     data: {
-      url: data.url || `${REPO_NAME}/`
+      url: data.url || `${REPO_NAME}/` // URL to open when notification is clicked
     }
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
-// Notification click event: handle user clicking on the notification
+// --- NOTIFICATION CLICK EVENT ---
+// Handle user clicking on the notification.
 self.addEventListener('notificationclick', event => {
-  event.notification.close();
+  event.notification.close(); // Close the notification
 
+  // Open the app window or a specific URL from the push data.
   event.waitUntil(
     clients.openWindow(event.notification.data.url || `${REPO_NAME}/`)
   );

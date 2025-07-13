@@ -519,39 +519,73 @@
          * and send their ID to the server.
          */
         async function subscribeUserToPush() {
-            if (!currentUser) {
-                showMessageModal('ข้อผิดพลาด', 'ไม่พบข้อมูลผู้ใช้', 'error');
+        if (!currentUser) {
+            showMessageModal('ข้อผิดพลาด', 'ไม่พบข้อมูลผู้ใช้ โปรดเข้าสู่ระบบอีกครั้ง', 'error');
+            return;
+        }
+
+        // Check for Service Worker readiness
+        if (!('serviceWorker' in navigator) || !navigator.serviceWorker.ready) {
+            showMessageModal('ข้อผิดพลาด', 'Service Worker ไม่พร้อมใช้งาน', 'error');
+            return;
+        }
+
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            const permission = await Notification.requestPermission();
+            
+            if (permission !== 'granted') {
+                showMessageModal('ไม่อนุญาต', 'คุณต้องอนุญาตการแจ้งเตือนเพื่อรับอัปเดต', 'error');
                 return;
             }
-            try {
-                const registration = await navigator.serviceWorker.ready;
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') {
-                    showMessageModal('ไม่อนุญาต', 'คุณต้องอนุญาตการแจ้งเตือนเพื่อรับอัปเดต', 'error');
-                    return;
-                }
-                const subscription = await registration.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-                });
-                
-                // *** CHANGED: Send both userId and subscription object ***
-                const payload = {
-                    userId: currentUser.id,
-                    subscription: subscription
-                };
-
-                await fetch(`${BACKEND_SERVER_URL}/save-subscription`, {
-                    method: 'POST', 
-                    body: JSON.stringify(payload), 
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                showMessageModal('สำเร็จ', 'ลงทะเบียนรับการแจ้งเตือนสำเร็จ!', 'success');
-            } catch (error) {
-                console.error('Failed to subscribe the user: ', error);
-                showMessageModal('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการลงทะเบียนรับการแจ้งเตือน', 'error');
+            
+            // Check for an existing subscription first
+            let existingSubscription = await registration.pushManager.getSubscription();
+            if (existingSubscription) {
+                console.log('User is already subscribed.');
+                // Inform the user that they are already subscribed.
+                showMessageModal('ข้อมูล', 'คุณได้ลงทะเบียนรับการแจ้งเตือนไว้แล้ว', 'info');
+                // Optional: You could re-send the subscription to the server here to ensure it's synced.
+                // For now, we just inform the user.
+                return;
             }
+
+            // If no subscription, create a new one
+            const subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+            });
+            
+            console.log('New subscription created:', subscription);
+
+            const payload = {
+                userId: currentUser.id,
+                subscription: subscription
+            };
+            
+            showLoading(true); // Show loader while sending to the server
+
+            const response = await fetch(`${BACKEND_SERVER_URL}/save-subscription`, {
+                method: 'POST', 
+                body: JSON.stringify(payload), 
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) {
+                // Try to get a more specific error message from the server response
+                const errorData = await response.json().catch(() => ({ message: 'ไม่สามารถอ่านข้อความข้อผิดพลาดจากเซิร์ฟเวอร์ได้' }));
+                throw new Error(`Server responded with ${response.status}: ${errorData.message}`);
+            }
+
+            showMessageModal('สำเร็จ', 'ลงทะเบียนรับการแจ้งเตือนสำเร็จ!', 'success');
+
+        } catch (error) {
+            console.error('Failed to subscribe the user: ', error);
+            showMessageModal('ข้อผิดพลาด', `เกิดข้อผิดพลาดในการลงทะเบียน: ${error.message}`, 'error');
+        } finally {
+            showLoading(false); // Hide loader regardless of outcome
         }
+    }
         
         // =================================================================================
         // THEME (DARK/LIGHT MODE) LOGIC

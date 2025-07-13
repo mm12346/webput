@@ -1,5 +1,5 @@
 // Service Worker for FixFlow App (Debugging Version)
-console.log('Service Worker Loaded - v17.0 (Debug)');
+console.log('Service Worker Loaded - v19.0 (Debug)');
 
 // --- CACHE VERSION ---
 // Incrementing the version number is crucial for triggering the 'activate' event.

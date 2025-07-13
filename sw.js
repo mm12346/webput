@@ -1,32 +1,31 @@
-// Service Worker for FixFlow App
+// Service Worker for FixFlow App (Vanilla Version - Patched for GitHub Pages)
 console.log('Service Worker Loaded');
 
-// เปลี่ยนเวอร์ชัน Cache ที่นี่เพื่อบังคับให้ Service Worker อัปเดตใหม่ทั้งหมด
-const CACHE_NAME = 'fixflow-cache-v1.0'; 
+const CACHE_NAME = 'fixflow-cache-v1.0'; // เปลี่ยนเวอร์ชัน Cache เพื่อบังคับให้อัปเดต
+const REPO_NAME = '/webput'; // << ชื่อ Repository ของคุณบน GitHub
 
-// รายการไฟล์ที่ต้องการ Cache สำหรับการใช้งานแบบ Offline
-// แก้ไขโดยใช้ Relative Path เพื่อให้ทำงานได้ถูกต้อง
+// A list of files to cache for the application shell, with correct paths
 const urlsToCache = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
+  `${REPO_NAME}/`,
+  `${REPO_NAME}/index.html`,
+  `${REPO_NAME}/manifest.json`,
+  `${REPO_NAME}/icon-192.png`,
+  `${REPO_NAME}/icon-512.png`
 ];
 
-// Event: install - ทำการ Cache ไฟล์หลักของแอป
+// Install event: cache application shell
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache and caching app shell');
+        console.log('Caching app shell with correct paths');
         return cache.addAll(urlsToCache);
       })
-      .then(() => self.skipWaiting()) // บังคับให้ Service Worker ใหม่ทำงานทันที
+      .then(() => self.skipWaiting()) // Force the new service worker to activate
   );
 });
 
-// Event: activate - ลบ Cache เก่าที่ไม่จำเป็นออกไป
+// Activate event: clean up old caches
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -34,41 +33,36 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
-            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
-    .then(() => self.clients.claim()) // ควบคุม Page ทั้งหมดทันที
+    .then(() => self.clients.claim()) // Take control of all pages
   );
 });
 
-// Event: fetch - จัดการกับการร้องขอ (Request)
-// จะพยายามหาใน Cache ก่อน ถ้าไม่เจอถึงจะไปดึงจาก Network
+// Fetch event: serve from cache first, then network
 self.addEventListener('fetch', event => {
-  // ไม่ต้อง Cache request ที่ไม่ใช่ GET
-  if (event.request.method !== 'GET') {
-    return;
-  }
+  if (event.request.method !== 'GET') return;
   
   event.respondWith(
     caches.match(event.request).then(response => {
-      // ถ้าเจอใน Cache ให้ส่งกลับไปเลย
+      // If we have a match in the cache, return it
       if (response) {
         return response;
       }
-      // ถ้าไม่เจอ ให้ไปดึงจาก Network
+      // Otherwise, fetch from the network
       return fetch(event.request).catch(() => {
-        // หาก Network ล้มเหลว สามารถส่งหน้า Offline สำรองได้
-        // ในที่นี้จะปล่อยให้ล้มเหลวไปก่อน
+        // If network fails, you can return a fallback offline page
+        // For now, it will just fail, which is okay for this stage.
       });
     })
   );
 });
 
 
-// Event: push - รอรับ Push Notification จาก Server
+// Push event: listen for incoming push messages
 self.addEventListener('push', event => {
   console.log('[Service Worker] Push Received.');
   
@@ -77,22 +71,21 @@ self.addEventListener('push', event => {
   const title = data.title || 'FixFlow Notification';
   const options = {
     body: data.body || 'You have a new update.',
-    icon: './icon-192.png', // ใช้ Relative Path
-    badge: './icon-192.png', // ใช้ Relative Path
+    icon: `${REPO_NAME}/icon-192.png`, 
+    badge: `${REPO_NAME}/icon-192.png`,
     data: {
-      url: data.url || './' // URL ที่จะเปิดเมื่อคลิก Notification
+      url: data.url || `${REPO_NAME}/`
     }
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
-// Event: notificationclick - จัดการเมื่อผู้ใช้คลิกที่ Notification
+// Notification click event: handle user clicking on the notification
 self.addEventListener('notificationclick', event => {
-  event.notification.close(); // ปิด Notification ที่คลิก
+  event.notification.close();
 
-  // เปิดหน้าต่างใหม่ไปยัง URL ที่กำหนดไว้ในข้อมูลของ Notification
   event.waitUntil(
-    clients.openWindow(event.notification.data.url)
+    clients.openWindow(event.notification.data.url || `${REPO_NAME}/`)
   );
 });

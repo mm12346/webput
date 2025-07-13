@@ -33,27 +33,22 @@ let subscriptions = []; // Structure: [{ userId: '...', subscription: { ... } }]
 
 /**
  * Route to save a push subscription from the frontend.
- * It now handles updates more gracefully and has better logging.
  */
 app.post('/save-subscription', (req, res) => {
   const { userId, subscription } = req.body;
   console.log('Received /save-subscription request for user:', userId);
 
-  // Validate the incoming data
   if (!userId || !subscription || !subscription.endpoint) {
     console.error('Invalid subscription data received:', req.body);
     return res.status(400).json({ message: 'User ID and a valid subscription object are required.' });
   }
 
-  // Find if a subscription with the same endpoint already exists
   const existingIndex = subscriptions.findIndex(sub => sub.subscription.endpoint === subscription.endpoint);
   
   if (existingIndex > -1) {
-    // If it exists, update it with the latest data (e.g., new userId if user re-logged in)
     console.log(`Updating existing subscription for endpoint: ${subscription.endpoint}`);
     subscriptions[existingIndex] = { userId, subscription };
   } else {
-    // If it's a new subscription, add it to the array
     console.log(`Adding new subscription for user: ${userId}`);
     subscriptions.push({ userId, subscription });
   }
@@ -64,10 +59,11 @@ app.post('/save-subscription', (req, res) => {
 
 /**
  * Route to trigger sending a notification.
- * Can target a specific technician or broadcast to everyone.
+ * Can target a specific user or broadcast to everyone.
  */
 app.post('/send-notification', (req, res) => {
-  const { title, body, url, technicianId } = req.body;
+  // *** NEW: Use a generic 'targetUserId' instead of 'technicianId' ***
+  const { title, body, url, targetUserId } = req.body;
   
   if (!title || !body) {
       return res.status(400).json({ error: 'Title and body are required.' });
@@ -81,14 +77,14 @@ app.post('/send-notification', (req, res) => {
 
   let targetSubscriptions = [];
 
-  if (technicianId) {
-    // Target a specific technician
+  if (targetUserId) {
+    // Target a specific user
     targetSubscriptions = subscriptions
-      .filter(s => String(s.userId) === String(technicianId))
+      .filter(s => String(s.userId) === String(targetUserId))
       .map(s => s.subscription);
-    console.log(`Sending notification to technician ID: ${technicianId}. Found ${targetSubscriptions.length} subscriptions.`);
+    console.log(`Sending notification to user ID: ${targetUserId}. Found ${targetSubscriptions.length} subscriptions.`);
   } else {
-    // Broadcast to all subscribers if no technicianId is provided
+    // Broadcast to all subscribers if no targetUserId is provided
     targetSubscriptions = subscriptions.map(s => s.subscription);
     console.log(`Broadcasting notification to all ${targetSubscriptions.length} subscribers.`);
   }
@@ -101,7 +97,6 @@ app.post('/send-notification', (req, res) => {
   const promises = targetSubscriptions.map(subscription => 
     webpush.sendNotification(subscription, notificationPayload)
       .catch(error => {
-        // If an endpoint is expired or invalid (HTTP 410 or 404), remove it from storage.
         if (error.statusCode === 410 || error.statusCode === 404) {
           console.log('Subscription has expired or is no longer valid. Removing it.');
           subscriptions = subscriptions.filter(s => s.subscription.endpoint !== error.endpoint);

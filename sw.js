@@ -1,7 +1,7 @@
 // Service Worker for FixFlow App (Vanilla Version - Patched for GitHub Pages)
 console.log('Service Worker Loaded');
 
-const CACHE_NAME = 'fixflow-cache-v1.0'; // เปลี่ยนเวอร์ชัน Cache เพื่อบังคับให้อัปเดต
+const CACHE_NAME = 'fixflow-cache-v15.0'; // เปลี่ยนเวอร์ชัน Cache เพื่อบังคับให้อัปเดต
 const REPO_NAME = '/webput'; // << ชื่อ Repository ของคุณบน GitHub
 
 // A list of files to cache for the application shell, with correct paths

@@ -135,7 +135,7 @@
                             <h1 class="text-2xl font-bold text-gray-800 dark:text-white hidden sm:block">ค้นหาอันตราย</h1>
                         </div>
                         <div class="flex items-center gap-3 sm:gap-4">
-                             <!-- NEW: Notification Button -->
+                             <!-- Notification Button -->
                             <button id="notification-btn" class="hidden p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" title="เปิดการแจ้งเตือน">
                                 <i data-lucide="bell" class="w-5 h-5"></i>
                             </button>
@@ -470,7 +470,7 @@
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyU2WVUj8eZwlx2UBVj7bAF0SSU6hOs1Tloq4hX2L8ctiKDk_n17vDecxzkLQ3dFoF7/exec";
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dsmiqo5si/image/upload";
         const CLOUDINARY_UPLOAD_PRESET = "FixFlow";
-        // NEW: Notification Configuration
+        // Notification Configuration
         const BACKEND_SERVER_URL = "https://webput.onrender.com"; // URL ของ Node.js server ของคุณ
         const VAPID_PUBLIC_KEY = "BBqT2dI697K39K1-0SAiJ0yPLhco0wtVWUMQnzq9NPYhW85gFdkuOSl86fOeDuiE1mUHFble7kUiTPYROk7BBsU"; // VAPID Key ที่ได้จาก server.js
 
@@ -502,7 +502,7 @@
             }
         });
 
-        // NEW: Function to convert VAPID key
+        // Function to convert VAPID key
         function urlBase64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
             const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -514,8 +514,15 @@
             return outputArray;
         }
 
-        // NEW: Function to subscribe user to push notifications
+        /**
+         * Function to subscribe user to push notifications
+         * and send their ID to the server.
+         */
         async function subscribeUserToPush() {
+            if (!currentUser) {
+                showMessageModal('ข้อผิดพลาด', 'ไม่พบข้อมูลผู้ใช้', 'error');
+                return;
+            }
             try {
                 const registration = await navigator.serviceWorker.ready;
                 const permission = await Notification.requestPermission();
@@ -527,8 +534,17 @@
                     userVisibleOnly: true,
                     applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
                 });
+                
+                // *** CHANGED: Send both userId and subscription object ***
+                const payload = {
+                    userId: currentUser.id,
+                    subscription: subscription
+                };
+
                 await fetch(`${BACKEND_SERVER_URL}/save-subscription`, {
-                    method: 'POST', body: JSON.stringify(subscription), headers: { 'Content-Type': 'application/json' }
+                    method: 'POST', 
+                    body: JSON.stringify(payload), 
+                    headers: { 'Content-Type': 'application/json' }
                 });
                 showMessageModal('สำเร็จ', 'ลงทะเบียนรับการแจ้งเตือนสำเร็จ!', 'success');
             } catch (error) {
@@ -584,7 +600,7 @@
         const userNameDisplay = document.getElementById('user-name-display');
         const userIdDisplay = document.getElementById('user-id-display');
         const logoutButton = document.getElementById('logout-button');
-        const notificationButton = document.getElementById('notification-btn'); // NEW
+        const notificationButton = document.getElementById('notification-btn');
         const requesterList = document.getElementById('requester-list');
         const adminList = document.getElementById('admin-list');
         const newRequestModal = document.getElementById('new-request-modal');
@@ -914,8 +930,8 @@
             showElement(adminView, currentUser.isAdmin || currentUser.isTechnician); 
             showElement(requesterView, !currentUser.isAdmin && !currentUser.isTechnician); 
             
-            // NEW: Show notification button only for admins
-            if (currentUser.isAdmin) {
+            // *** CHANGED: Show notification button for Admins and Technicians ***
+            if (currentUser.isAdmin || currentUser.isTechnician) {
                 notificationButton.classList.remove('hidden');
             }
             
@@ -955,7 +971,7 @@
             window.location.reload();
         });
 
-        // NEW: Event listener for notification button
+        // Event listener for notification button
         notificationButton.addEventListener('click', subscribeUserToPush);
 
         openRequestModalBtn.addEventListener('click', () => {
@@ -1000,6 +1016,9 @@
                 const result = await callGasApi({ action: 'createRequest', data: requestData });
                 if (result) {
                     showMessageModal('สำเร็จ', 'แจ้งอันตรายสำเร็จ', 'success');
+                    // Note: The logic to trigger a notification should be in your Google Apps Script.
+                    // After a request is created, your GAS should call the /send-notification endpoint
+                    // on your Node.js server, passing the assigned technician's ID.
                     setTimeout(async () => {
                         showNewRequestModal(false);
                         await loadDashboardData(false);

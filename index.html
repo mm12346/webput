@@ -135,7 +135,7 @@
                             <h1 class="text-2xl font-bold text-gray-800 dark:text-white hidden sm:block">ค้นหาอันตราย</h1>
                         </div>
                         <div class="flex items-center gap-3 sm:gap-4">
-                             <!-- Notification Button -->
+                             <!-- *** NEW: Notification Button is now always visible for logged-in users *** -->
                             <button id="notification-btn" class="hidden p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" title="เปิดการแจ้งเตือน">
                                 <i data-lucide="bell" class="w-5 h-5"></i>
                             </button>
@@ -199,8 +199,15 @@
 
                 <!-- Admin/Technician View -->
                 <div id="admin-view" class="hidden">
-                    <h2 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white" id="admin-view-title">แดชบอร์ดจัดการ</h2>
-                    
+                     <!-- *** NEW: Header for Admin/Technician view with a "New Request" button *** -->
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                        <h2 class="text-3xl font-bold text-gray-800 dark:text-white" id="admin-view-title">แดชบอร์ดจัดการ</h2>
+                        <button id="open-request-modal-btn-admin" class="w-full sm:w-auto bg-green-600 text-white font-bold py-2.5 px-5 rounded-lg hover:bg-green-700 transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-105 shadow-lg shadow-green-500/30">
+                            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                            <span>แจ้งอันตรายใหม่</span>
+                        </button>
+                    </div>
+
                     <!-- Summary Cards -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                         <!-- Card Template -->
@@ -337,7 +344,7 @@
                         <div class="flex items-center gap-3"><i data-lucide="user" class="w-4 h-4 text-gray-400"></i><strong>ผู้แจ้ง: </strong> <span id="details-requester" class="font-normal"></span></div>
                         <div class="flex items-center gap-3"><i data-lucide="user-check" class="w-4 h-4 text-gray-400"></i><strong>มอบหมายให้:</strong> <span id="details-assigned-to" class="font-normal"></span></div>
                         <div class="flex items-center gap-3"><i data-lucide="clock" class="w-4 h-4 text-gray-400"></i><strong>อัปเดตล่าสุด: </strong> <span id="details-last-updated" class="font-normal"></span></div>
-                        <div class="flex items-center gap-3 col-span-full"><i data-lucide="user-check" class="w-4 h-4 text-gray-400"></i><strong>อัปเดตโดย:</strong> <span id="details-updated-by" class="font-normal"></span></div>
+                        <div class="flex items-center gap-3 col-span-full"><i data-lucide="user-edit" class="w-4 h-4 text-gray-400"></i><strong>อัปเดตโดย:</strong> <span id="details-updated-by" class="font-normal"></span></div>
                         <div class="col-span-full">
                             <strong class="flex items-center gap-3"><i data-lucide="file-text" class="w-4 h-4 text-gray-400"></i>รายละเอียด:</strong>
                             <p class="mt-2 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700/50 p-3 rounded-lg" id="details-details"></p>
@@ -519,73 +526,42 @@
          * and send their ID to the server.
          */
         async function subscribeUserToPush() {
-        if (!currentUser) {
-            showMessageModal('ข้อผิดพลาด', 'ไม่พบข้อมูลผู้ใช้ โปรดเข้าสู่ระบบอีกครั้ง', 'error');
-            return;
-        }
-
-        // Check for Service Worker readiness
-        if (!('serviceWorker' in navigator) || !navigator.serviceWorker.ready) {
-            showMessageModal('ข้อผิดพลาด', 'Service Worker ไม่พร้อมใช้งาน', 'error');
-            return;
-        }
-
-        try {
-            const registration = await navigator.serviceWorker.ready;
-            const permission = await Notification.requestPermission();
-            
-            if (permission !== 'granted') {
-                showMessageModal('ไม่อนุญาต', 'คุณต้องอนุญาตการแจ้งเตือนเพื่อรับอัปเดต', 'error');
+            if (!currentUser) {
+                showMessageModal('ข้อผิดพลาด', 'ไม่พบข้อมูลผู้ใช้', 'error');
                 return;
             }
-            
-            // Check for an existing subscription first
-            let existingSubscription = await registration.pushManager.getSubscription();
-            if (existingSubscription) {
-                console.log('User is already subscribed.');
-                // Inform the user that they are already subscribed.
-                showMessageModal('ข้อมูล', 'คุณได้ลงทะเบียนรับการแจ้งเตือนไว้แล้ว', 'info');
-                // Optional: You could re-send the subscription to the server here to ensure it's synced.
-                // For now, we just inform the user.
+             if (!('serviceWorker' in navigator) || !navigator.serviceWorker.ready) {
+                showMessageModal('ข้อผิดพลาด', 'Service Worker ไม่พร้อมใช้งาน', 'error');
                 return;
             }
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    showMessageModal('ไม่อนุญาต', 'คุณต้องอนุญาตการแจ้งเตือนเพื่อรับอัปเดต', 'error');
+                    return;
+                }
+                const subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                });
+                
+                const payload = {
+                    userId: currentUser.id,
+                    subscription: subscription
+                };
 
-            // If no subscription, create a new one
-            const subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-            });
-            
-            console.log('New subscription created:', subscription);
-
-            const payload = {
-                userId: currentUser.id,
-                subscription: subscription
-            };
-            
-            showLoading(true); // Show loader while sending to the server
-
-            const response = await fetch(`${BACKEND_SERVER_URL}/save-subscription`, {
-                method: 'POST', 
-                body: JSON.stringify(payload), 
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            if (!response.ok) {
-                // Try to get a more specific error message from the server response
-                const errorData = await response.json().catch(() => ({ message: 'ไม่สามารถอ่านข้อความข้อผิดพลาดจากเซิร์ฟเวอร์ได้' }));
-                throw new Error(`Server responded with ${response.status}: ${errorData.message}`);
+                await fetch(`${BACKEND_SERVER_URL}/save-subscription`, {
+                    method: 'POST', 
+                    body: JSON.stringify(payload), 
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                showMessageModal('สำเร็จ', 'ลงทะเบียนรับการแจ้งเตือนสำเร็จ!', 'success');
+            } catch (error) {
+                console.error('Failed to subscribe the user: ', error);
+                showMessageModal('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการลงทะเบียนรับการแจ้งเตือน', 'error');
             }
-
-            showMessageModal('สำเร็จ', 'ลงทะเบียนรับการแจ้งเตือนสำเร็จ!', 'success');
-
-        } catch (error) {
-            console.error('Failed to subscribe the user: ', error);
-            showMessageModal('ข้อผิดพลาด', `เกิดข้อผิดพลาดในการลงทะเบียน: ${error.message}`, 'error');
-        } finally {
-            showLoading(false); // Hide loader regardless of outcome
         }
-    }
         
         // =================================================================================
         // THEME (DARK/LIGHT MODE) LOGIC
@@ -639,6 +615,7 @@
         const adminList = document.getElementById('admin-list');
         const newRequestModal = document.getElementById('new-request-modal');
         const openRequestModalBtn = document.getElementById('open-request-modal-btn');
+        const openRequestModalBtnAdmin = document.getElementById('open-request-modal-btn-admin'); // New button
         const newRequestForm = document.getElementById('new-request-form');
         const imageInput = document.getElementById('image');
         const imagePreview = document.getElementById('image-preview');
@@ -961,13 +938,12 @@
             showElement(loginPage, false);
             showElement(mainAppPage, true);
             
+            // *** NEW: Show notification button for ALL logged-in users ***
+            notificationButton.classList.remove('hidden');
+
+            // *** NEW: Show the correct views based on user role ***
             showElement(adminView, currentUser.isAdmin || currentUser.isTechnician); 
             showElement(requesterView, !currentUser.isAdmin && !currentUser.isTechnician); 
-            
-            // *** CHANGED: Show notification button for Admins and Technicians ***
-            if (currentUser.isAdmin || currentUser.isTechnician) {
-                notificationButton.classList.remove('hidden');
-            }
             
             await loadDashboardData();
             await loadTechnicians(); 
@@ -1008,9 +984,9 @@
         // Event listener for notification button
         notificationButton.addEventListener('click', subscribeUserToPush);
 
-        openRequestModalBtn.addEventListener('click', () => {
-            showNewRequestModal(true);
-        });
+        // *** NEW: Add event listeners for BOTH "New Request" buttons ***
+        openRequestModalBtn.addEventListener('click', () => showNewRequestModal(true));
+        openRequestModalBtnAdmin.addEventListener('click', () => showNewRequestModal(true));
 
         document.querySelectorAll('.close-modal-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -1050,9 +1026,6 @@
                 const result = await callGasApi({ action: 'createRequest', data: requestData });
                 if (result) {
                     showMessageModal('สำเร็จ', 'แจ้งอันตรายสำเร็จ', 'success');
-                    // Note: The logic to trigger a notification should be in your Google Apps Script.
-                    // After a request is created, your GAS should call the /send-notification endpoint
-                    // on your Node.js server, passing the assigned technician's ID.
                     setTimeout(async () => {
                         showNewRequestModal(false);
                         await loadDashboardData(false);

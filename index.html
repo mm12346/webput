@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ค้นหาอันตราย - ระบบแจ้งซ่อม</title>
+    <title>ระบบแจ้งปัญหา</title>
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#3b82f6"/>
@@ -117,8 +117,8 @@
                     <div class="inline-flex items-center justify-center bg-blue-100 dark:bg-blue-900/50 p-4 rounded-full mb-4">
                         <i data-lucide="wrench" class="w-12 h-12 text-blue-600 dark:text-blue-400"></i>
                     </div>
-                    <h1 class="text-4xl font-bold text-gray-800 dark:text-white">ค้นหาอันตราย</h1>
-                    <p class="text-gray-500 dark:text-gray-400 mt-2">ระบบค้นหาและแจ้งอันตราย</p>
+                    <h1 class="text-4xl font-bold text-gray-800 dark:text-white">แจ้งปัญหา</h1>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2">ระบบแจ้งปัญหา</p>
                 </div>
                 <form id="login-form">
                     <div class="mb-5">
@@ -152,7 +152,7 @@
                             <div class="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg">
                                 <i data-lucide="wrench" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
                             </div>
-                            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">ค้นหาอันตราย</h1>
+                            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">แจ้งปัญหา</h1>
                         </div>
                         <div class="flex items-center gap-2 sm:gap-4">
                             <button id="notification-btn" class="hidden p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" title="เปิดการแจ้งเตือน">
@@ -184,15 +184,15 @@
                 <div id="requester-view">
                     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                         <div class="flex items-center gap-3 self-start w-full sm:w-auto">
-                            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">รายการแจ้งของคุณ</h2>
+                            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">รายการแจ้งปัญหาของคุณ</h2>
                             <button id="desktop-refresh-btn-requester" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" title="รีเฟรชรายการ">
                                 <i data-lucide="refresh-cw" class="w-5 h-5"></i>
                             </button>
                         </div>
                         <!-- Desktop Button -->
-                        <button id="open-request-modal-btn" class="w-full sm:w-auto bg-blue-600 text-white font-bold py-2.5 px-5 rounded-lg hover:bg-blue-700 transition-all duration-300 hidden sm:flex items-center justify-center gap-2 transform hover:scale-105 shadow-lg shadow-blue-500/30">
+                        <button id="open-request-modal-btn" class="w-full sm:w-auto bg-green-600 text-white font-bold py-2.5 px-5 rounded-lg hover:bg-blue-700 transition-all duration-300 hidden sm:flex items-center justify-center gap-2 transform hover:scale-105 shadow-lg shadow-blue-500/30">
                             <i data-lucide="plus" class="w-5 h-5"></i>
-                            <span>แจ้งอันตรายใหม่</span>
+                            <span>แจ้งปัญหาใหม่</span>
                         </button>
                     </div>
 
@@ -202,7 +202,7 @@
                             <i data-lucide="search" class="w-5 h-5"></i>
                             <span>ค้นหา</span>
                         </button>
-                        <button id="open-request-modal-btn-requester-mobile" class="flex items-center justify-center gap-2 p-3 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
+                        <button id="open-request-modal-btn-requester-mobile" class="flex items-center justify-center gap-2 p-3 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">
                             <i data-lucide="plus" class="w-5 h-5"></i>
                             <span>แจ้งใหม่</span>
                         </button>
@@ -231,7 +231,7 @@
                 <div id="admin-view" class="hidden">
                     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                         <div class="flex items-center gap-3 self-start w-full sm:w-auto">
-                            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white" id="admin-view-title">แดชบอร์ดจัดการ</h2>
+                            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white" id="admin-view-title">แดชบอร์ด</h2>
                              <button id="desktop-refresh-btn-admin" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" title="รีเฟรชรายการ">
                                 <i data-lucide="refresh-cw" class="w-5 h-5"></i>
                             </button>
@@ -240,11 +240,11 @@
                         <div class="hidden sm:flex items-center gap-2">
                              <button id="show-tech-dashboard-btn" class="hidden bg-purple-600 text-white font-bold py-2.5 px-5 rounded-lg hover:bg-purple-700 transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-105 shadow-lg shadow-purple-500/30">
                                 <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                                <span>แดชบอร์ดช่าง</span>
+                                <span>แดชบอร์ดช่าง/ผู้จัดการ</span>
                             </button>
                             <button id="open-request-modal-btn-admin" class="bg-green-600 text-white font-bold py-2.5 px-5 rounded-lg hover:bg-green-700 transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-105 shadow-lg shadow-green-500/30">
                                 <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                                <span>แจ้งอันตรายใหม่</span>
+                                <span>แจ้งปัญหาใหม่</span>
                             </button>
                         </div>
                     </div>
@@ -257,9 +257,9 @@
                         </button>
                         <button id="show-tech-dashboard-btn-mobile" class="hidden flex items-center justify-center gap-2 p-3 bg-purple-600 text-white rounded-lg text-sm font-semibold hover:bg-purple-700 transition-colors">
                             <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                            <span>แดชบอร์ดช่าง</span>
+                            <span>แดชบอร์ด</span>
                         </button>
-                        <button id="open-request-modal-btn-admin-mobile" class="flex items-center justify-center gap-2 p-3 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
+                        <button id="open-request-modal-btn-admin-mobile" class="flex items-center justify-center gap-2 p-3 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">
                             <i data-lucide="plus" class="w-5 h-5"></i>
                             <span>แจ้งใหม่</span>
                         </button>
@@ -305,7 +305,7 @@
                         </div>
                         <div data-status="รออะไหล่" class="summary-card bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border-l-4 border-red-500 cursor-pointer hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors group">
                              <div class="flex justify-between items-center">
-                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">รออะไหล่</p>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">รออะไหล่/ยกเลิก</p>
                                 <i data-lucide="archive" class="w-5 h-5 text-red-500"></i>
                             </div>
                             <p id="summary-cancelled" class="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-white mt-2">0</p>
@@ -359,7 +359,7 @@
                              <img id="image-preview" src="" class="mt-3 rounded-lg max-h-48 hidden w-full object-contain">
                         </div>
                         <div>
-                            <label for="assigned-to" class="block text-sm font-medium text-gray-700 dark:text-gray-300">มอบหมายให้ (ช่าง/ผู้รับผิดชอบ)</label>
+                            <label for="assigned-to" class="block text-sm font-medium text-gray-700 dark:text-gray-300">มอบหมายให้ (ช่าง/ผู้จัดการ/ผู้รับผิดชอบ)</label>
                             <select id="assigned-to" name="assigned-to" class="mt-1 w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
                                 <option value="">เลือกช่าง/ผู้รับผิดชอบ</option>
                             </select>
@@ -433,7 +433,7 @@
                                      <option value="รอดำเนินการ">รอดำเนินการ</option>
                                      <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
                                      <option value="ซ่อมเสร็จแล้ว">ซ่อมเสร็จแล้ว</option>
-                                     <option value="รออะไหล่">รออะไหล่</option>
+                                     <option value="รออะไหล่">รออะไหล่/ยกเลิก</option>
                                 </select>
                              </div>
                              <div class="self-end">
@@ -442,7 +442,7 @@
                         </div>
                         <div id="status-comment-section" class="hidden">
                             <label for="status-comment-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300">หมายเหตุ</label>
-                            <textarea id="status-comment-input" rows="1" class="mt-1 w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"></textarea>
+                            <textarea id="status-comment-input" rows="2" class="mt-1 w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"></textarea>
                         </div>
                      </div>
 
@@ -504,7 +504,7 @@
                             <!-- NEW: Technician Registration Checkbox -->
                             <div class="flex items-center pt-2">
                                 <input id="register-as-technician" name="register-as-technician" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
-                                <label for="register-as-technician" class="ml-3 text-sm text-gray-700 dark:text-gray-300">ลงทะเบียนในฐานะช่าง</label>
+                                <label for="register-as-technician" class="ml-3 text-sm text-gray-700 dark:text-gray-300">ลงทะเบียนในฐานะช่าง/ผู้จัดการ</label>
                             </div>
                         </div>
                          <p id="register-error" class="text-red-500 text-sm mt-2 text-center h-5"></p>
@@ -520,7 +520,7 @@
         <div id="tech-dashboard-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-0 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
             <div class="bg-white dark:bg-gray-800 w-full h-full sm:w-full sm:max-w-6xl sm:rounded-2xl sm:shadow-xl sm:max-h-[90vh] flex flex-col">
                 <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center flex-shrink-0">
-                    <h3 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">แดชบอร์ดช่าง</h3>
+                    <h3 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">แดชบอร์ด</h3>
                     <button type="button" class="close-modal-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
                         <i data-lucide="x" class="w-5 h-5 text-gray-600 dark:text-gray-300"></i>
                     </button>
@@ -528,7 +528,7 @@
                 <div class="flex-grow flex flex-col md:flex-row overflow-hidden">
                     <!-- Left Panel: Technician List -->
                     <div id="tech-dashboard-list-panel" class="w-full md:w-1/3 lg:w-1/4 border-r border-gray-200 dark:border-gray-700 p-4 overflow-y-auto flex-shrink-0">
-                        <h4 class="font-bold mb-4 text-gray-800 dark:text-white">รายชื่อช่าง</h4>
+                        <h4 class="font-bold mb-4 text-gray-800 dark:text-white">รายชื่อช่าง/ผู้จัดการ</h4>
                         <ul id="tech-dashboard-list" class="space-y-1">
                             <!-- Technician list items will be injected here -->
                         </ul>
@@ -537,7 +537,7 @@
                     <div id="tech-dashboard-details-view" class="w-full md:w-2/3 lg:w-3/4 p-4 sm:p-6 overflow-y-auto">
                         <div id="tech-dashboard-placeholder" class="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-400">
                             <i data-lucide="users" class="w-16 h-16 mb-4"></i>
-                            <h4 class="text-xl font-semibold">กรุณาเลือกช่าง</h4>
+                            <h4 class="text-xl font-semibold">กรุณาเลือกช่าง/ผู้จัดการ</h4>
                             <p class="text-sm">เพื่อดูสรุปและรายการงาน</p>
                         </div>
                         <div id="tech-dashboard-content" class="hidden">
@@ -812,7 +812,7 @@
             "รอดำเนินการ": { text: "text-yellow-800 dark:text-yellow-300", bg: "bg-yellow-100 dark:bg-yellow-400/20", border: "border-yellow-400 dark:border-yellow-500", icon: "clock" },
             "กำลังดำเนินการ": { text: "text-blue-800 dark:text-blue-300", bg: "bg-blue-100 dark:bg-blue-500/20", border: "border-blue-500 dark:border-blue-400", icon: "loader-2" },
             "ซ่อมเสร็จแล้ว": { text: "text-green-800 dark:text-green-300", bg: "bg-green-100 dark:bg-green-500/20", border: "border-green-500 dark:border-green-400", icon: "check-circle-2" },
-            "รออะไหล่": { text: "text-red-800 dark:text-red-300", bg: "bg-red-100 dark:bg-red-500/20", border: "border-red-500 dark:border-red-400", icon: "archive" },
+            "รออะไหล่/ยกเลิก": { text: "text-red-800 dark:text-red-300", bg: "bg-red-100 dark:bg-red-500/20", border: "border-red-500 dark:border-red-400", icon: "archive" },
         };
 
         function showMessageModal(title, message, type = 'info') {
@@ -889,7 +889,7 @@
                 if (req.status === 'รอดำเนินการ') counts.pending++;
                 else if (req.status === 'กำลังดำเนินการ') counts.inprogress++;
                 else if (req.status === 'ซ่อมเสร็จแล้ว') counts.completed++;
-                else if (req.status === 'รออะไหล่') counts.cancelled++;
+                else if (req.status === 'รออะไหล่/ยกเลิก') counts.cancelled++;
             });
             document.getElementById(`${containerIdPrefix}-pending`).textContent = counts.pending;
             document.getElementById(`${containerIdPrefix}-inprogress`).textContent = counts.inprogress;
@@ -994,10 +994,10 @@
                 let data;
                 if (currentUser.isAdmin) {
                     data = await callGasApi({ action: 'getRequests', isAdmin: true });
-                    adminViewTitle.textContent = 'แดชบอร์ดจัดการ';
+                    adminViewTitle.textContent = 'แดชบอร์ด';
                 } else if (currentUser.isTechnician) {
                     data = await callGasApi({ action: 'getRequests', isTechnician: true, employeeId: currentUser.id });
-                    adminViewTitle.textContent = 'แดชบอร์ดช่าง';
+                    adminViewTitle.textContent = 'แดชบอร์ด';
                 } else {
                     data = await callGasApi({ action: 'getRequests', requesterId: currentUser.id });
                 }
@@ -1029,12 +1029,12 @@
                 }
             } catch (error) {
                 console.error("Error loading technicians:", error);
-                showMessageModal('ข้อผิดพลาด', `เกิดข้อผิดพลาดในการโหลดรายชื่อช่าง: ${error.message}`, 'error');
+                showMessageModal('ข้อผิดพลาด', `เกิดข้อผิดพลาดในการโหลดรายชื่อช่าง/หัวหน้างาน: ${error.message}`, 'error');
             }
         }
 
         function populateTechnicianDropdown(techs) {
-            assignedToSelect.innerHTML = '<option value="">เลือกช่าง/ผู้รับผิดชอบ</option>';
+            assignedToSelect.innerHTML = '<option value="">เลือกช่าง/ผู้จัดการ/ผู้รับผิดชอบ</option>';
             techs.forEach(tech => {
                 const option = document.createElement('option');
                 option.value = tech.id;
@@ -1388,7 +1388,7 @@
                         `;
                     });
                 } else {
-                    techDashboardList.innerHTML = '<p class="text-gray-500 p-4">ไม่พบข้อมูลช่าง</p>';
+                    techDashboardList.innerHTML = '<p class="text-gray-500 p-4">ไม่พบข้อมูลช่าง/ผู้จัดการ</p>';
                 }
             }).catch(error => {
                 techDashboardList.innerHTML = `<p class="text-red-500 p-4">เกิดข้อผิดพลาด: ${error.message}</p>`;
@@ -1426,8 +1426,8 @@
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">ซ่อมเสร็จแล้ว</p>
                     <p id="tech-summary-completed" class="text-3xl font-bold text-gray-800 dark:text-white mt-2">0</p>
                 </div>
-                <div data-status="รออะไหล่" class="summary-card bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border-l-4 border-red-500 cursor-pointer">
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">รออะไหล่</p>
+                <div data-status="รออะไหล่/ยกเลิก" class="summary-card bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border-l-4 border-red-500 cursor-pointer">
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">รออะไหล่/ยกเลิก</p>
                     <p id="tech-summary-cancelled" class="text-3xl font-bold text-gray-800 dark:text-white mt-2">0</p>
                 </div>
             `;

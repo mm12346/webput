@@ -2,8 +2,7 @@
 <html lang="th" class="light">
 <head>
     <meta charset="UTF-8">
-    <!-- MODIFIED: Updated viewport to disable zoom, and support notch area -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบแจ้งปัญหา</title>
 
     <!-- PWA Meta Tags -->
@@ -42,25 +41,19 @@
         body {
             font-family: 'Kanit', sans-serif;
             -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
-            
-            /* MODIFIED: Added padding to respect safe areas on devices with notches */
-            padding-top: env(safe-area-inset-top);
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
-            padding-bottom: env(safe-area-inset-bottom);
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+        body::-webkit-scrollbar {
+            display: none;
         }
         
-        /* MODIFIED: Make header respect the safe area */
-        div#main-app-page > header {
-            padding-top: env(safe-area-inset-top);
-        }
-
         /* Add this class to body when a modal is open to prevent background scrolling */
         body.modal-open {
             overflow: hidden;
         }
 
-        /* Custom scrollbar for a modern look - Will only show when content overflows */
+        /* Custom scrollbar for a modern look */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #a8a8a8; border-radius: 3px; }
@@ -102,14 +95,6 @@
                 width: 100%;
                 height: 100%;
             }
-        }
-
-        /* MODIFIED: Add safe area padding for the full-screen dashboard modal on mobile */
-        #tech-dashboard-modal > div.flex.flex-col {
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
         }
     </style>
 </head>
@@ -160,7 +145,7 @@
         <!-- Main App Page (Requester & Admin) -->
         <div id="main-app-page" class="hidden">
             <!-- Header -->
-            <header class="bg-white/80 dark:bg-gray-900/80 shadow-md fixed w-full top-0 z-40 backdrop-blur-lg">
+            <header class="bg-white dark:bg-gray-900 shadow-md sticky top-0 z-40 backdrop-blur-lg">
                 <div class="container mx-auto px-4 py-3">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-3">
@@ -194,7 +179,7 @@
             </header>
 
             <!-- Main Content -->
-            <main class="container mx-auto p-3 sm:p-4 md:p-6 relative pt-20">
+            <main class="container mx-auto p-3 sm:p-4 md:p-6 relative">
                 <!-- Requester View -->
                 <div id="requester-view">
                     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
@@ -318,7 +303,7 @@
                             </div>
                             <p id="summary-completed" class="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-white mt-2">0</p>
                         </div>
-                        <div data-status="รออะไหล่/ยกเลิก" class="summary-card bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border-l-4 border-red-500 cursor-pointer hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors group">
+                        <div data-status="รออะไหล่" class="summary-card bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border-l-4 border-red-500 cursor-pointer hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors group">
                              <div class="flex justify-between items-center">
                                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">รออะไหล่/ยกเลิก</p>
                                 <i data-lucide="archive" class="w-5 h-5 text-red-500"></i>
@@ -457,7 +442,7 @@
                         </div>
                         <div id="status-comment-section" class="hidden">
                             <label for="status-comment-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300">หมายเหตุ</label>
-                            <textarea id="status-comment-input" rows="2" class="mt-1 w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"></textarea>
+                            <textarea id="status-comment-input" rows="" class="mt-1 w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"></textarea>
                         </div>
                      </div>
 
@@ -680,29 +665,6 @@
             }
         }
         
-        // NEW: Function to unsubscribe from push notifications
-        async function unsubscribeUserFromPush() {
-            if (!('serviceWorker' in navigator)) return;
-            try {
-                const registration = await navigator.serviceWorker.ready;
-                const subscription = await registration.pushManager.getSubscription();
-                if (subscription) {
-                    // Tell the backend to remove the subscription
-                    await fetch(`${BACKEND_SERVER_URL}/remove-subscription`, {
-                        method: 'POST',
-                        body: JSON.stringify({ endpoint: subscription.endpoint }),
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                    // Unsubscribe from the browser's push service
-                    await subscription.unsubscribe();
-                    console.log('User unsubscribed successfully.');
-                }
-            } catch (error) {
-                console.error('Error unsubscribing user: ', error);
-                // Don't show a user-facing error for this, as it's a background task
-            }
-        }
-
         // =================================================================================
         // THEME (DARK/LIGHT MODE) LOGIC
         // =================================================================================
@@ -1172,12 +1134,8 @@
             }
         });
 
-        // MODIFIED: Logout button now handles unsubscription
-        logoutButton.addEventListener('click', async () => {
-            showLoading(true);
-            await unsubscribeUserFromPush(); // Unsubscribe from notifications
+        logoutButton.addEventListener('click', () => {
             localStorage.removeItem('currentUser');
-            showLoading(false);
             window.location.reload();
         });
 

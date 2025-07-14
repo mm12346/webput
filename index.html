@@ -2,6 +2,13 @@
 <html lang="th" class="light">
 <head>
     <meta charset="UTF-8">
+    
+    <!-- 
+      Viewport meta tag for responsive design. 
+      This configuration allows users to pinch-zoom on mobile devices.
+      If zooming is still disabled, it might be due to a device-specific setting
+      or a browser accessibility feature. The code itself permits zooming.
+    -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบแจ้งปัญหา</title>
 
@@ -37,15 +44,15 @@
     </script>
 
     <style>
+        /* FIX: Ensure scrollbar only appears when content overflows */
+        html {
+            overflow-y: auto;
+        }
+
         /* Use Kanit as the default font */
         body {
             font-family: 'Kanit', sans-serif;
             -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
-            -ms-overflow-style: none; /* IE and Edge */
-            scrollbar-width: none; /* Firefox */
-        }
-        body::-webkit-scrollbar {
-            display: none;
         }
         
         /* Add this class to body when a modal is open to prevent background scrolling */
@@ -433,7 +440,7 @@
                                      <option value="รอดำเนินการ">รอดำเนินการ</option>
                                      <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
                                      <option value="ซ่อมเสร็จแล้ว">ซ่อมเสร็จแล้ว</option>
-                                     <option value="รออะไหล่">รออะไหล่/ยกเลิก</option>
+                                     <option value="รออะไหล่/ยกเลิก">รออะไหล่/ยกเลิก</option>
                                 </select>
                              </div>
                              <div class="self-end">
@@ -1134,9 +1141,35 @@
             }
         });
 
-        logoutButton.addEventListener('click', () => {
-            localStorage.removeItem('currentUser');
-            window.location.reload();
+        // FIX: Add logic to unsubscribe from push notifications on logout
+        logoutButton.addEventListener('click', async () => {
+            showLoading(true);
+            try {
+                // Unsubscribe from push notifications before logging out
+                if ('serviceWorker' in navigator && 'PushManager' in window) {
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.getSubscription();
+                    if (subscription) {
+                        // Tell the backend to remove the subscription record
+                        await fetch(`${BACKEND_SERVER_URL}/remove-subscription`, {
+                            method: 'POST',
+                            body: JSON.stringify({ endpoint: subscription.endpoint }),
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        // Unsubscribe from the browser's push service
+                        await subscription.unsubscribe();
+                        console.log('User unsubscribed from push notifications.');
+                    }
+                }
+            } catch (error) {
+                console.error('Error during push notification unsubscription:', error);
+                // Don't block logout if unsubscription fails, just log it.
+            } finally {
+                // Clear local session and reload the page
+                localStorage.removeItem('currentUser');
+                showLoading(false);
+                window.location.reload();
+            }
         });
 
         notificationButton.addEventListener('click', subscribeUserToPush);

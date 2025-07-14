@@ -58,6 +58,29 @@ app.post('/save-subscription', (req, res) => {
 });
 
 /**
+ * NEW: Route to remove a push subscription, e.g., on logout.
+ */
+app.post('/remove-subscription', (req, res) => {
+    const { endpoint } = req.body;
+    if (!endpoint) {
+        return res.status(400).json({ message: 'Endpoint is required to remove a subscription.' });
+    }
+    console.log('Received /remove-subscription request for endpoint:', endpoint);
+    const initialCount = subscriptions.length;
+    subscriptions = subscriptions.filter(sub => sub.subscription.endpoint !== endpoint);
+    const finalCount = subscriptions.length;
+
+    if (initialCount > finalCount) {
+        console.log(`Subscription with endpoint ${endpoint} removed successfully.`);
+    } else {
+        console.log(`No subscription found with endpoint ${endpoint} to remove.`);
+    }
+    console.log(`Total subscriptions now: ${finalCount}`);
+    res.status(200).json({ message: 'Subscription removed or was not found.' });
+});
+
+
+/**
  * Route to trigger sending a notification.
  * Can target a specific user or broadcast to everyone.
  */

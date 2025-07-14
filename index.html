@@ -50,8 +50,8 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
         
-        /* MODIFIED: Make sticky header also respect the safe area */
-        header.sticky {
+        /* MODIFIED: Make header respect the safe area */
+        div#main-app-page > header {
             padding-top: env(safe-area-inset-top);
         }
 
@@ -152,7 +152,7 @@
         <!-- Main App Page (Requester & Admin) -->
         <div id="main-app-page" class="hidden">
             <!-- Header -->
-            <header class="bg-white/80 dark:bg-gray-900/80 shadow-md sticky top-0 z-40 backdrop-blur-lg">
+            <header class="bg-white/80 dark:bg-gray-900/80 shadow-md fixed w-full top-0 z-40 backdrop-blur-lg">
                 <div class="container mx-auto px-4 py-3">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-3">
@@ -186,7 +186,7 @@
             </header>
 
             <!-- Main Content -->
-            <main class="container mx-auto p-3 sm:p-4 md:p-6 relative">
+            <main class="container mx-auto p-3 sm:p-4 md:p-6 relative pt-20">
                 <!-- Requester View -->
                 <div id="requester-view">
                     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
@@ -1469,7 +1469,7 @@
             try {
                 const techRequests = allRequests.filter(req => String(req.assignedToId) === String(techId));
                 updateSummaryCards(techRequests, 'tech-summary');
-                renderRequests(techRequests, techDashboardRequests, currentUser);
+                renderRequests(techRequests, currentUser);
             } catch (error) {
                 techDashboardRequests.innerHTML = `<p class="text-red-500 col-span-full text-center py-12">เกิดข้อผิดพลาด: ${error.message}</p>`;
             }

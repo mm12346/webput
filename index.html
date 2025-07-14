@@ -2,13 +2,14 @@
 <html lang="th" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- MODIFIED: ปรับปรุง viewport เพื่อจัดการกับติ่งและป้องกันการซูม -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ระบบแจ้งปัญหา</title>
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#3b82f6"/>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="เว็บแอปพลิเคชันสำหรับค้นหาและแจ้งอันตรายภายในองค์กร">
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -37,15 +38,23 @@
     </script>
 
     <style>
-        /* Use Kanit as the default font */
+        /* Use Kanit as the default font and handle safe areas */
         body {
             font-family: 'Kanit', sans-serif;
             -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
             -ms-overflow-style: none; /* IE and Edge */
             scrollbar-width: none; /* Firefox */
+            transition: background-color 0.3s ease, color 0.3s ease;
+            /* Add padding to the bottom to avoid home indicator/nav bar on iOS */
+            padding-bottom: env(safe-area-inset-bottom);
         }
         body::-webkit-scrollbar {
             display: none;
+        }
+
+        /* Add padding to the sticky header to avoid the notch/status bar */
+        header.sticky {
+            padding-top: env(safe-area-inset-top);
         }
         
         /* Add this class to body when a modal is open to prevent background scrolling */
@@ -77,11 +86,6 @@
             100% { stroke-dashoffset: 187; transform: rotate(450deg); }
         }
         
-        /* Smooth transition for theme change */
-        body {
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
         /* Styles for mobile technician dashboard navigation */
         @media (max-width: 767px) {
             #tech-dashboard-modal.mobile-details-active #tech-dashboard-list-panel {

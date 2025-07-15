@@ -1,6 +1,6 @@
 {
-  "name": "FixFlow - ระบบแจ้งซ่อม",
-  "short_name": "FixFlow",
+  "name": "ระบบแจ้งซ่อม",
+  "short_name": "แจ้งซ่อม",
   "description": "เว็บแอปพลิเคชันสำหรับแจ้งซ่อมบำรุงภายในองค์กร",
   "start_url": "/webput/index.html",
   "display": "standalone",

@@ -2,11 +2,10 @@
 <html lang="th" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ระบบแจ้งปัญหา</title>
 
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#3b82f6"/>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="description" content="เว็บแอปพลิเคชันสำหรับแจ้งปัญหา">
@@ -107,6 +106,11 @@
                 padding-bottom: env(safe-area-inset-bottom);
                 height: calc(4rem + env(safe-area-inset-bottom));
             }
+        }
+        
+        /* Handle safe area for top header on modern phones */
+        header {
+            padding-top: env(safe-area-inset-top);
         }
     </style>
 </head>
@@ -718,6 +722,16 @@
                 document.documentElement.classList.remove('dark');
             }
             localStorage.setItem('theme', theme);
+
+            // Update theme-color meta tag
+            let themeColorMeta = document.querySelector('meta[name="theme-color"]');
+            if (!themeColorMeta) {
+                themeColorMeta = document.createElement('meta');
+                themeColorMeta.name = 'theme-color';
+                document.getElementsByTagName('head')[0].appendChild(themeColorMeta);
+            }
+            // Note: These colors should match the header's bg-white and dark:bg-gray-900
+            themeColorMeta.setAttribute('content', theme === 'dark' ? '#111827' : '#ffffff');
         }
 
         function handleThemeToggle() {

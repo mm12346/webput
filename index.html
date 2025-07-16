@@ -112,6 +112,14 @@
         header {
             padding-top: env(safe-area-inset-top);
         }
+
+        /* FIX: Add safe area padding for the full-screen technician dashboard modal on mobile */
+        #tech-dashboard-modal > div {
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">

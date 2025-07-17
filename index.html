@@ -436,7 +436,8 @@
         </div>
 
         <!-- Details Modal -->
-        <div id="details-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
+        <!-- CORRECTED: Increased z-index from z-50 to z-[55] to ensure it appears above the technician dashboard modal -->
+        <div id="details-modal" class="hidden fixed inset-0 bg-black/60 z-[55] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
             <div class="bg-white dark:bg-gray-800 w-full max-w-3xl rounded-2xl shadow-xl transform transition-all max-h-[90vh] flex flex-col">
                 <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
                     <div class="flex justify-between items-start">
@@ -1449,7 +1450,9 @@
 
         document.getElementById('app').addEventListener('click', (e) => {
              const card = e.target.closest('.request-card');
-             if (card && !e.target.closest('.delete-btn')) {
+             // CORRECTED: Ensure this listener doesn't fire for cards inside the tech dashboard,
+             // as that is now handled by a separate, more specific listener.
+             if (card && !e.target.closest('#tech-dashboard-requests') && !e.target.closest('.delete-btn')) {
                 const requestId = card.dataset.id;
                 const requestData = allRequests.find(r => r.id === requestId);
                 if (requestData) populateDetailsModal(requestData);
@@ -1570,13 +1573,6 @@
             finally { requestIdToDelete = null; showLoading(false); }
         });
 
-        // showRegisterModalBtn.addEventListener('click', (e) => {
-        //     e.preventDefault(); 
-        //     registerForm.reset(); 
-        //     registerError.textContent = ''; 
-        //     setModalState(registerModal, true);
-        // });
-
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const fullName = document.getElementById('register-full-name').value.trim();
@@ -1628,7 +1624,6 @@
             showElement(techDashboardContent, false);
             showElement(techDashboardPlaceholder, true);
             
-            // Use the already loaded technician data instead of fetching again
             renderTechnicianList(technicians);
             
             lucide.createIcons();
@@ -1680,7 +1675,18 @@
             }
         });
         
+        // CORRECTED: Changed this to a more specific listener for the technician dashboard details view.
         techDashboardDetailsView.addEventListener('click', (e) => {
+            const card = e.target.closest('.request-card');
+            if (card && !e.target.closest('.delete-btn')) {
+                const requestId = card.dataset.id;
+                const requestData = allRequests.find(r => r.id === requestId);
+                if (requestData) {
+                    populateDetailsModal(requestData);
+                }
+                return; // Stop further processing
+            }
+
             const summaryCard = e.target.closest('.summary-card');
             if (!summaryCard) return;
 
@@ -1720,7 +1726,7 @@
         navNewRequestBtn.addEventListener('click', () => showNewRequestModal(true));
         navTechDashboardBtn.addEventListener('click', showTechnicianDashboard);
 
-        // --- NEW: Rating Logic ---
+        // --- Rating Logic ---
         ratingStarsContainer.addEventListener('click', (e) => {
             const starButton = e.target.closest('.rating-star');
             if (!starButton) return;
@@ -1751,14 +1757,12 @@
 
                 if (result && result.success) {
                     showMessageModal('สำเร็จ', 'ขอบคุณสำหรับความคิดเห็นและการให้คะแนน', 'success');
-                    // Update local data and refresh modal
                     const requestData = allRequests.find(r => r.id === currentRequestId);
                     if (requestData) {
                         requestData.rating = ratingValue;
                         requestData.ratingComment = ratingComment;
-                        populateDetailsModal(requestData); // Refresh the modal to show the new rating
+                        populateDetailsModal(requestData);
                     }
-                    // Refresh dashboard data in the background
                     loadDashboardData(false);
                 }
             } catch (error) {

@@ -154,7 +154,7 @@
                     </button>
                 </form>
                 <p id="login-error" class="text-red-500 text-sm mt-4 text-center h-5"></p>
-                <div class="text-center mt-4">
+                <div class="text-center mt-4 hidden">
                     <a href="#" id="show-register-modal-btn" class="text-sm text-blue-600 hover:underline dark:text-blue-400">ยังไม่เคยใช้งาน? ลงทะเบียนที่นี่</a>
                 </div>
             </div>
@@ -918,11 +918,14 @@
             }
         }
 
-        async function uploadToCloudinary(file) {
+        async function uploadToCloudinary(file, folderName) {
             try {
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+                if (folderName) {
+                    formData.append('folder', folderName);
+                }
                 const response = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
                 const data = await response.json();
                 if (data.secure_url) return data.secure_url;
@@ -1285,7 +1288,7 @@
                 const imageFile = formData.get('image');
 
                 if (imageFile && imageFile.size > 0) {
-                    const uploadedUrl = await uploadToCloudinary(imageFile);
+                    const uploadedUrl = await uploadToCloudinary(imageFile, 'before_images');
                     if (!uploadedUrl) throw new Error('ไม่สามารถอัปโหลดรูปภาพได้');
                     imageUrl = uploadedUrl;
                 }
@@ -1387,7 +1390,7 @@
             if (!file) return;
             showLoading(true);
             try {
-                const imageUrl = await uploadToCloudinary(file);
+                const imageUrl = await uploadToCloudinary(file, 'after_images');
                 if (imageUrl) {
                     const result = await callGasApi({ action: 'addAfterImage', id: currentRequestId, imageUrl: imageUrl, updaterName: currentUser.name });
                     if (result) {
@@ -1451,12 +1454,12 @@
             finally { requestIdToDelete = null; showLoading(false); }
         });
 
-        showRegisterModalBtn.addEventListener('click', (e) => {
-            e.preventDefault(); 
-            registerForm.reset(); 
-            registerError.textContent = ''; 
-            setModalState(registerModal, true);
-        });
+        // showRegisterModalBtn.addEventListener('click', (e) => {
+        //     e.preventDefault(); 
+        //     registerForm.reset(); 
+        //     registerError.textContent = ''; 
+        //     setModalState(registerModal, true);
+        // });
 
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1485,33 +1488,34 @@
         });
 
         // --- Technician Dashboard Logic ---
+        function renderTechnicianList(techs) {
+            techDashboardList.innerHTML = '';
+            if (techs && techs.length > 0) {
+                techs.forEach(tech => {
+                    techDashboardList.innerHTML += `
+                        <li>
+                            <a href="#" class="tech-item flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" data-tech-id="${tech.id}" data-tech-name="${tech.name}">
+                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center font-bold text-sm">${tech.name.charAt(0)}</span>
+                                <span class="ml-3 font-medium text-gray-800 dark:text-gray-200">${tech.name}</span>
+                            </a>
+                        </li>
+                    `;
+                });
+            } else {
+                techDashboardList.innerHTML = '<p class="text-gray-500 p-4">ไม่พบข้อมูลช่าง/ผู้จัดการ</p>';
+            }
+        }
+        
         function showTechnicianDashboard() {
             setModalState(techDashboardModal, true);
             techDashboardModal.classList.remove('mobile-details-active');
-            techDashboardList.innerHTML = '<p class="text-gray-500 p-4">กำลังโหลด...</p>';
             showElement(techDashboardContent, false);
             showElement(techDashboardPlaceholder, true);
+            
+            // Use the already loaded technician data instead of fetching again
+            renderTechnicianList(technicians);
+            
             lucide.createIcons();
-
-            callGasApi({ action: 'getTechnicians' }).then(techs => {
-                techDashboardList.innerHTML = '';
-                if (techs && techs.length > 0) {
-                    techs.forEach(tech => {
-                        techDashboardList.innerHTML += `
-                            <li>
-                                <a href="#" class="tech-item flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" data-tech-id="${tech.id}" data-tech-name="${tech.name}">
-                                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center font-bold text-sm">${tech.name.charAt(0)}</span>
-                                    <span class="ml-3 font-medium text-gray-800 dark:text-gray-200">${tech.name}</span>
-                                </a>
-                            </li>
-                        `;
-                    });
-                } else {
-                    techDashboardList.innerHTML = '<p class="text-gray-500 p-4">ไม่พบข้อมูลช่าง/ผู้จัดการ</p>';
-                }
-            }).catch(error => {
-                techDashboardList.innerHTML = `<p class="text-red-500 p-4">เกิดข้อผิดพลาด: ${error.message}</p>`;
-            });
         }
 
         techDashboardListPanel.addEventListener('click', async (e) => {

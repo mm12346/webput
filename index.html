@@ -120,6 +120,14 @@
             padding-left: env(safe-area-inset-left);
             padding-right: env(safe-area-inset-right);
         }
+        
+        /* Rating star styles */
+        .rating-star i, .rating-star svg {
+            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+        }
+        .rating-star:hover i, .rating-star:hover svg {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
@@ -475,6 +483,40 @@
                             <img id="details-after-image" src="https://placehold.co/600x400/e2e8f0/a0aec0?text=รออัปโหลด" class="w-full h-auto rounded-lg shadow-sm zoomable-image cursor-zoom-in" alt="รูปภาพหลังแก้ไข">
                         </div>
                     </div>
+
+                    <!-- NEW: Requester Rating Section -->
+                    <div id="requester-rating-section" class="hidden mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <h4 class="font-bold mb-3 text-lg text-gray-800 dark:text-white">ให้คะแนนความพึงพอใจ</h4>
+                        <div id="rating-display" class="hidden">
+                             <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">คุณได้ให้คะแนนแล้ว:</p>
+                             <div class="flex items-center mb-2" id="rating-display-stars">
+                                 <!-- Filled stars will be injected here by JS -->
+                             </div>
+                             <p class="text-sm font-medium text-gray-800 dark:text-gray-200">ความคิดเห็น:</p>
+                             <p class="mt-1 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700/50 p-3 rounded-lg" id="rating-display-comment"></p>
+                        </div>
+                        <form id="rating-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">คะแนน (1-5 ดาว)</label>
+                                <div class="flex items-center space-x-1" id="rating-stars">
+                                    <button type="button" data-value="1" class="rating-star p-1 text-gray-300 dark:text-gray-500 hover:text-yellow-400"><i data-lucide="star" class="w-7 h-7 pointer-events-none"></i></button>
+                                    <button type="button" data-value="2" class="rating-star p-1 text-gray-300 dark:text-gray-500 hover:text-yellow-400"><i data-lucide="star" class="w-7 h-7 pointer-events-none"></i></button>
+                                    <button type="button" data-value="3" class="rating-star p-1 text-gray-300 dark:text-gray-500 hover:text-yellow-400"><i data-lucide="star" class="w-7 h-7 pointer-events-none"></i></button>
+                                    <button type="button" data-value="4" class="rating-star p-1 text-gray-300 dark:text-gray-500 hover:text-yellow-400"><i data-lucide="star" class="w-7 h-7 pointer-events-none"></i></button>
+                                    <button type="button" data-value="5" class="rating-star p-1 text-gray-300 dark:text-gray-500 hover:text-yellow-400"><i data-lucide="star" class="w-7 h-7 pointer-events-none"></i></button>
+                                </div>
+                                <input type="hidden" id="rating-value" name="rating-value" value="0">
+                            </div>
+                            <div>
+                                <label for="rating-comment" class="block text-sm font-medium text-gray-700 dark:text-gray-300">ความคิดเห็นเพิ่มเติม</label>
+                                <textarea id="rating-comment" name="rating-comment" rows="3" class="mt-1 w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"></textarea>
+                            </div>
+                            <div class="text-right">
+                                <button type="submit" id="submit-rating-btn" class="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-400 dark:disabled:bg-green-800" disabled>ส่งคะแนน</button>
+                            </div>
+                        </form>
+                    </div>
+
                 </div>
                 
                 <!-- Admin/Technician Controls -->
@@ -850,6 +892,11 @@
         const navMyRequestsBtn = document.getElementById('nav-my-requests-btn');
         const navNewRequestBtn = document.getElementById('nav-new-request-btn');
         const navTechDashboardBtn = document.getElementById('nav-tech-dashboard-btn');
+        // NEW: Rating elements
+        const ratingForm = document.getElementById('rating-form');
+        const ratingStarsContainer = document.getElementById('rating-stars');
+        const ratingValueInput = document.getElementById('rating-value');
+        const submitRatingBtn = document.getElementById('submit-rating-btn');
 
 
         const showLoading = (show) => loadingOverlay.classList.toggle('hidden', !show);
@@ -976,6 +1023,16 @@
             const style = statusStyles[request.status] || statusStyles['รอดำเนินการ'];
             const canDelete = userSession.isAdmin || (String(request.requesterId) === String(userSession.id));
             const assignedToText = request.assignedToName || 'ยังไม่ระบุ';
+            
+            // NEW: Add rating display to card
+            let ratingDisplay = '';
+            if (request.rating && parseInt(request.rating) > 0) {
+                let stars = '';
+                for(let i=0; i < 5; i++) {
+                    stars += `<i data-lucide="star" class="w-3.5 h-3.5 ${i < request.rating ? 'text-yellow-500 fill-current' : 'text-gray-300'}"></i>`;
+                }
+                ratingDisplay = `<div class="flex items-center gap-1">${stars}</div>`;
+            }
 
             return `
                  <div class="request-card bg-white dark:bg-gray-800/50 p-4 rounded-xl shadow-lg shadow-gray-200/40 dark:shadow-black/20 hover:shadow-xl dark:hover:shadow-black/40 transition-all duration-300 cursor-pointer border-l-4 ${style.border} transform hover:-translate-y-1" data-id="${request.id}">
@@ -990,7 +1047,10 @@
                         <p class="flex items-center gap-2"><i data-lucide="user-check" class="w-4 h-4 text-gray-400"></i><span class="font-medium">ผู้รับผิดชอบ:</span> ${assignedToText}</p>
                     </div>
                     <div class="border-t border-gray-200 dark:border-gray-700 mt-4 pt-3 text-xs text-gray-500 dark:text-gray-500 flex justify-between items-center">
-                        <span>แจ้ง: ${new Date(request.date).toLocaleDateString('th-TH')}</span>
+                        <div class="flex items-center gap-2">
+                           <span>แจ้ง: ${new Date(request.date).toLocaleDateString('th-TH')}</span>
+                           ${ratingDisplay ? `<span class="mx-1">·</span> ${ratingDisplay}` : ''}
+                        </div>
                         ${canDelete ? `
                         <button class="delete-btn p-1.5 rounded-full text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-500 dark:hover:text-red-400 transition-colors z-10" data-id="${request.id}" title="ลบรายการ">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -1010,6 +1070,24 @@
             lucide.createIcons();
         }
         
+        // Function to handle star display for rating input
+        function updateStarDisplay(container, rating) {
+            // CORRECTED: Select the SVG elements that Lucide creates, not the original 'i' tags.
+            const starSvgs = container.querySelectorAll('.rating-star svg'); 
+            starSvgs.forEach((star, index) => {
+                if (index < rating) {
+                    // Add yellow color and fill to the selected stars
+                    star.classList.add('text-yellow-400', 'fill-current');
+                    star.classList.remove('text-gray-300', 'dark:text-gray-500');
+                } else {
+                    // Remove yellow color and fill from unselected stars
+                    star.classList.remove('text-yellow-400', 'fill-current');
+                    // Explicitly add gray color back to ensure correct state
+                    star.classList.add('text-gray-300', 'dark:text-gray-500');
+                }
+            });
+        }
+
         function populateDetailsModal(request) {
             currentRequestId = request.id;
             const style = statusStyles[request.status] || statusStyles['รอดำเนินการ'];
@@ -1059,6 +1137,38 @@
                     initialUploadContainer.classList.toggle('hidden', !!request.afterImageUrl);
                 }
             }
+
+            // --- NEW: Rating Section Logic ---
+            const ratingSection = document.getElementById('requester-rating-section');
+            const ratingDisplay = document.getElementById('rating-display');
+            
+            ratingSection.classList.add('hidden');
+            ratingForm.classList.remove('hidden');
+            ratingDisplay.classList.add('hidden');
+
+            if (request.status === 'ซ่อมเสร็จแล้ว' && String(currentUser.id) === String(request.requesterId)) {
+                ratingSection.classList.remove('hidden');
+                
+                if (request.rating && parseInt(request.rating) > 0) {
+                    ratingForm.classList.add('hidden');
+                    ratingDisplay.classList.remove('hidden');
+                    
+                    const displayStarsContainer = document.getElementById('rating-display-stars');
+                    displayStarsContainer.innerHTML = '';
+                    for (let i = 0; i < 5; i++) {
+                        const isFilled = i < parseInt(request.rating);
+                        displayStarsContainer.innerHTML += `<i data-lucide="star" class="w-6 h-6 ${isFilled ? 'text-yellow-400 fill-current' : 'text-gray-300 dark:text-gray-600'}"></i>`;
+                    }
+                    document.getElementById('rating-display-comment').textContent = request.ratingComment || 'ไม่มีความคิดเห็น';
+                } else {
+                    ratingForm.classList.remove('hidden');
+                    ratingDisplay.classList.add('hidden');
+                    ratingForm.reset();
+                    submitRatingBtn.disabled = true;
+                    updateStarDisplay(ratingStarsContainer, 0);
+                }
+            }
+            
             setModalState(detailsModal, true);
             lucide.createIcons();
         }
@@ -1067,11 +1177,16 @@
             if (showIndicator) showLoading(true);
             try {
                 let data;
+                // Admins see all requests
                 if (currentUser.isAdmin) {
                     data = await callGasApi({ action: 'getRequests', isAdmin: true });
-                } else if (currentUser.isTechnician) {
+                } 
+                // Technicians see all requests assigned to them AND all requests they created themselves
+                else if (currentUser.isTechnician) {
                     data = await callGasApi({ action: 'getRequests', isTechnician: true, employeeId: currentUser.id });
-                } else {
+                } 
+                // Regular users only see requests they created
+                else {
                     data = await callGasApi({ action: 'getRequests', requesterId: currentUser.id });
                 }
 
@@ -1083,7 +1198,7 @@
 
                     if (currentUser.isAdmin || currentUser.isTechnician) {
                         let requestsForDashboard = allRequests;
-                        // For a non-admin technician, their dashboard should only show work assigned to them.
+                        // For a non-admin technician, their main dashboard should only show work assigned to them.
                         if (currentUser.isTechnician && !currentUser.isAdmin) {
                             requestsForDashboard = allRequests.filter(req => String(req.assignedToId) === String(currentUser.id));
                         }
@@ -1207,6 +1322,7 @@
                 updateActiveNav('dashboard');
             } else {
                 showElement(bottomNav, false);
+                showElement(requesterView, true);
             }
 
             await loadDashboardData();
@@ -1603,6 +1719,55 @@
         navMyRequestsBtn.addEventListener('click', () => updateActiveNav('my-requests'));
         navNewRequestBtn.addEventListener('click', () => showNewRequestModal(true));
         navTechDashboardBtn.addEventListener('click', showTechnicianDashboard);
+
+        // --- NEW: Rating Logic ---
+        ratingStarsContainer.addEventListener('click', (e) => {
+            const starButton = e.target.closest('.rating-star');
+            if (!starButton) return;
+            const rating = parseInt(starButton.dataset.value, 10);
+            ratingValueInput.value = rating;
+            submitRatingBtn.disabled = false;
+            updateStarDisplay(ratingStarsContainer, rating);
+        });
+
+        ratingForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const ratingValue = ratingValueInput.value;
+            const ratingComment = document.getElementById('rating-comment').value.trim();
+
+            if (parseInt(ratingValue, 10) === 0) {
+                showMessageModal('ข้อผิดพลาด', 'กรุณาให้คะแนนอย่างน้อย 1 ดาว', 'error');
+                return;
+            }
+
+            showLoading(true);
+            try {
+                const result = await callGasApi({
+                    action: 'updateRating',
+                    id: currentRequestId,
+                    rating: ratingValue,
+                    comment: ratingComment
+                });
+
+                if (result && result.success) {
+                    showMessageModal('สำเร็จ', 'ขอบคุณสำหรับความคิดเห็นและการให้คะแนน', 'success');
+                    // Update local data and refresh modal
+                    const requestData = allRequests.find(r => r.id === currentRequestId);
+                    if (requestData) {
+                        requestData.rating = ratingValue;
+                        requestData.ratingComment = ratingComment;
+                        populateDetailsModal(requestData); // Refresh the modal to show the new rating
+                    }
+                    // Refresh dashboard data in the background
+                    loadDashboardData(false);
+                }
+            } catch (error) {
+                showMessageModal('ข้อผิดพลาด', `เกิดข้อผิดพลาด: ${error.message}`, 'error');
+            } finally {
+                showLoading(false);
+            }
+        });
+
 
         // --- Initial Load ---
         (async () => {
